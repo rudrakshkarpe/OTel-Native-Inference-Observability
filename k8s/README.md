@@ -1,15 +1,18 @@
 # Kubernetes deployment (production-shaped)
 
 The docker-compose demo is the 10-minute quickstart. This path runs the same
-telemetry on a real Kubernetes cluster so Dash0's **Kubernetes Monitoring**
-(Deployments/Pods) and **Alerting** (check rules) light up alongside the
-Services/Tracing view — the way a customer actually runs GPU inference.
+OpenTelemetry pipeline on a real Kubernetes cluster so infrastructure
+monitoring (Deployments/Pods) and alerting (check rules) light up alongside
+Services/Tracing — the way a customer actually runs GPU inference.
+
+This demo ships with the [Dash0](https://www.dash0.com) Kubernetes operator as
+the reference OTLP-native backend for those tiles.
 
 ## What it deploys
 
 | Piece | Role |
 |---|---|
-| **Dash0 operator** (Helm, `dash0-system`) | Collects Kubernetes infrastructure metrics + pod logs, and syncs `PrometheusRule` resources into Dash0 check rules |
+| **Dash0 operator** (Helm, `dash0-system`) | Collects Kubernetes infrastructure metrics + pod logs, and syncs `PrometheusRule` resources into check rules |
 | **vllm-simulator** Deployment | The same vLLM/DCGM-faithful simulator, now a first-class k8s workload |
 | **otel-collector** Deployment | Our collector, scraping both metric ports and receiving OTLP traces/logs — identical config to the compose demo (`collector/config.yaml`) |
 | **Dash0Monitoring** CR | Enables operator monitoring + rule sync for the `llm-inference` namespace |

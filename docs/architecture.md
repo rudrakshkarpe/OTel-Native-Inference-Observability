@@ -21,13 +21,14 @@
 ┌──────────────────────────┐      ┌─────────────────────────┐
 │  Workload simulator      │      │  OTel Collector (contrib)│
 │  (or vLLM + DCGM in      │      │                         │
-│   GPU mode)              │      │  receivers:             │
-│                          │      │   • prometheus (scrape) │──┐
-│  :8000/metrics  vllm:*   │◄─────│   • otlp (gRPC/HTTP)    │  │ OTLP/gRPC
-│  :9400/metrics  DCGM_*   │      │  processors:            │  │ + Bearer auth
-│  OTLP traces  gen_ai.*   │─────►│   memory_limiter,       │  ▼
-│                          │      │   resource, batch       │  Dash0
-└──────────────────────────┘      └─────────────────────────┘  (ingress.*.dash0.com:4317)
+│   GPU mode)              │      │  receivers:             │──┐
+│                          │      │   • prometheus (scrape) │  │ OTLP/gRPC
+│  :8000/metrics  vllm:*   │◄─────│   • otlp (gRPC/HTTP)    │  │ (+ Bearer)
+│  :9400/metrics  DCGM_*   │      │  processors:            │  ▼
+│  OTLP traces  gen_ai.*   │─────►│   memory_limiter,       │  any OTLP
+│                          │      │   resource, attributes, │  backend
+└──────────────────────────┘      │   batch                 │  (e.g. Dash0)
+                                  └─────────────────────────┘
 ```
 
 ## Telemetry data model
@@ -59,9 +60,10 @@ outlier requests — which profile, which prompt size, queued behind what.
   `request_decode_time`.
 - Scheduler gauges: `vllm:num_requests_running`, `vllm:num_requests_waiting`,
   `vllm:kv_cache_usage_perc` — the leading indicators of saturation.
-- Throughput counters: `vllm:prompt_tokens_total`,
-  `vllm:generation_tokens_total`, `vllm:request_success_total`,
-  prefix-cache hit counters.
+- Throughput counters: `vllm:prompt_tokens`, `vllm:generation_tokens`,
+  `vllm:request_success`, prefix-cache hit counters.
+
+See [metrics-catalog.md](metrics-catalog.md) for the full inventory.
 
 ### Metrics — GPU fleet (DCGM names)
 
@@ -72,35 +74,37 @@ labelled by `gpu`, `UUID`, `modelName`, `Hostname`.
 ### Resource attributes
 
 The collector's `resource` processor stamps every signal with
-`service.namespace=llm-inference` and `deployment.environment.name=demo`, so
-one Dash0 org can hold demo and production datasets side by side and every
-signal is filterable by environment.
+`service.namespace=llm-inference`, `deployment.environment.name=demo`, and
+`observability.pipeline=otel-native-llm-inference`, so one org can hold demo
+and production datasets side by side and every signal is filterable by
+environment.
 
 ## Collector design notes
 
 - **`prometheus` receiver instead of per-engine OTel plugins**: vLLM and DCGM
   already expose battle-tested Prometheus endpoints; scraping them at the
   collector keeps the engines untouched and the migration path incremental.
-- **`memory_limiter` first, `batch` last** — standard contrib ordering; the
-  pipeline degrades gracefully under load instead of OOM-ing next to the
-  inference engine it observes.
-- **Auth via `bearertokenauth` extension** rather than static headers, per
-  Dash0's reference configuration.
+- **`memory_limiter` first, enrichment next, `batch` last** — standard contrib
+  ordering; the pipeline degrades gracefully under load instead of OOM-ing
+  next to the inference engine it observes.
+- **Auth via `bearertokenauth` extension** for OTLP backends that expect a
+  Bearer token (Dash0's reference config uses this pattern).
 - **`debug` exporter kept in every pipeline** so the telemetry stream is
-  inspectable locally (`make logs`) with or without a Dash0 account.
+  inspectable locally (`make logs`) with or without a backend account.
 
 ## The incident narrative
 
-Every 7 minutes the simulator triggers a 90-second, 3× traffic burst. Watch
-the causal chain across the dashboard:
+Every 7 minutes the simulator triggers a 90-second, 3× traffic burst
+(`SCENARIO=burst`). Watch the causal chain across the dashboard:
 
 1. `num_requests_waiting` climbs as arrivals outpace the decode batch.
 2. `kv_cache_usage_perc` approaches 95%+.
 3. Queue-time P95 and TTFT P99 spike together (latency decomposition shows the
    spike lives in *queueing*, not prefill/decode).
-4. Once the queue bound is hit, 429-status error spans appear in Dash0.
+4. Once the queue bound is hit, 429-status error spans appear.
 5. The burst ends; the queue drains; every signal recovers.
 
-This is precisely the scenario to hand to Dash0's AI/MCP interface:
-*"Why did P99 time-to-first-token spike at 14:32?"* — the answer is written
-across correlated metrics and traces from a single OTel pipeline.
+Ask: *"Why did P99 time-to-first-token spike at 14:32?"* — the answer is
+written across correlated metrics, traces, and logs from a single OTel
+pipeline. Backend UIs (including Dash0's Agent0/MCP path) can query the same
+correlated data humans see on the dashboards.

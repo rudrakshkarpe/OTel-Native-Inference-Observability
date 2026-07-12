@@ -1,7 +1,7 @@
 # GPU Mode: Real vLLM + DCGM
 
 Demo mode simulates the telemetry sources. GPU mode replaces the simulator
-with the real engines while keeping the collector pipeline, Dash0 wiring, and
+with the real engines while keeping the collector pipeline, OTLP export, and
 dashboards **unchanged** — that is the point of the architecture.
 
 ## Requirements
@@ -25,7 +25,7 @@ What the overlay changes:
 | Engine metrics (`vllm:*`) | simulator `:8000` | `vllm/vllm-openai` `:8000` |
 | GPU metrics (`DCGM_*`) | simulator `:9400` | `dcgm-exporter` `:9400` |
 | Request traces | simulator via OTLP | vLLM `--otlp-traces-endpoint=grpc://otel-collector:4317` |
-| Collector, processors, Dash0 exporter | identical | identical |
+| Collector, processors, OTLP exporter | identical | identical |
 | Dashboards / alerts | identical | identical |
 
 The scrape targets are switched purely via the `VLLM_METRICS_TARGET` and
@@ -37,6 +37,8 @@ The scrape targets are switched purely via the `VLLM_METRICS_TARGET` and
 Any OpenAI-compatible client works against `http://<host>:8000/v1`:
 
 ```bash
+make loadgen
+# or:
 curl http://localhost:8000/v1/chat/completions \
   -H 'Content-Type: application/json' \
   -d '{
@@ -45,9 +47,9 @@ curl http://localhost:8000/v1/chat/completions \
   }'
 ```
 
-For sustained load, point any load generator (`vllm bench serve`, `k6`, or a
-simple loop) at the same endpoint; every request shows up as a `gen_ai.*`
-trace and moves the engine histograms.
+For sustained load, point any load generator (`vllm bench serve`, `k6`, or
+`scripts/loadgen.py`) at the same endpoint; every request shows up as a
+`gen_ai.*` trace and moves the engine histograms.
 
 ## Notes
 
