@@ -70,7 +70,7 @@
   <text x="686" y="548" fill="#8A9099" font-size="12.5">shared</text>
   <text x="686" y="564" fill="#E6E8EB" font-size="12.5" font-weight="600">trace_id</text>
 
-  <rect x="770" y="528" width="410" height="48" rx="10" fill="url(#d0)"/>
-  <text x="975" y="551" fill="#FFFFFF" font-size="13.5" font-weight="600" text-anchor="middle">Check rules flip Critical · Agent0 answers "why?"</text>
-  <text x="975" y="568" fill="#FDEAF0" font-size="11.5" text-anchor="middle">one pipeline, one data model — root cause, not guesswork</text>
+  <rect x="770" y="528" width="410" height="48" rx="10" fill="#1E2024" stroke="#5B63E6"/>
+  <text x="975" y="551" fill="#E6E8EB" font-size="13.5" font-weight="600" text-anchor="middle">Pivot log → trace → metrics on one trace_id</text>
+  <text x="975" y="568" fill="#8A9099" font-size="11.5" text-anchor="middle">one OTel pipeline — root cause, not guesswork</text>
 </svg>
