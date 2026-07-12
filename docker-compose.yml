@@ -8,6 +8,7 @@ services:
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       OTEL_SERVICE_NAME: vllm-server
       MODEL_NAME: qwen2.5-7b-instruct
+      SCENARIO: ${SCENARIO:-burst}
     ports:
       - "8000:8000"   # vLLM-shaped /metrics
       - "9400:9400"   # DCGM-shaped /metrics

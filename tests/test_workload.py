@@ -33,6 +33,24 @@ def test_incident_active_at_trailing_window():
     assert main.incident_active_at(period - 1) is True
 
 
+def test_steady_scenario_never_incidents():
+    assert main.incident_active_at(100.0, period=86_400.0, duration=0.0) is False
+    assert main.incident_active_at(86_399.0, period=86_400.0, duration=0.0) is False
+
+
+def test_resolve_incident_knobs_presets(monkeypatch):
+    monkeypatch.delenv("INCIDENT_PERIOD_S", raising=False)
+    monkeypatch.delenv("INCIDENT_DURATION_S", raising=False)
+    monkeypatch.delenv("INCIDENT_BOOST", raising=False)
+    period, duration, boost = main._resolve_incident_knobs("steady")
+    assert duration == 0.0
+    assert boost == 1.0
+    period, duration, boost = main._resolve_incident_knobs("recovery")
+    assert period == 180.0
+    assert duration == 45.0
+    assert boost == 2.5
+
+
 def test_new_request_has_required_fields():
     req = main.new_request(1_700_000_000.0)
     assert req["arrival"] == 1_700_000_000.0

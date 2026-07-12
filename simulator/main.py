@@ -22,7 +22,9 @@ import logging
 import math
 import os
 import random
+import threading
 import time
+from wsgiref.simple_server import make_server
 
 from prometheus_client import (
     CollectorRegistry,
@@ -30,10 +32,32 @@ from prometheus_client import (
     Gauge,
     Histogram,
     disable_created_metrics,
-    start_http_server,
+    make_wsgi_app,
 )
 
 disable_created_metrics()  # real vLLM/DCGM exporters don't emit *_created series
+
+
+def _metrics_and_health_app(registry):
+    """Serve Prometheus metrics plus /healthz and /readyz on the same port."""
+    metrics_app = make_wsgi_app(registry)
+
+    def app(environ, start_response):
+        path = environ.get("PATH_INFO", "")
+        if path in ("/healthz", "/readyz"):
+            start_response("200 OK", [("Content-Type", "text/plain")])
+            return [b"ok\n"]
+        return metrics_app(environ, start_response)
+
+    return app
+
+
+def start_metrics_server(port, registry):
+    server = make_server("", port, _metrics_and_health_app(registry))
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    return server
+
 
 from opentelemetry import trace
 from opentelemetry._logs import set_logger_provider
@@ -57,9 +81,27 @@ SERVICE_NAME = os.getenv("OTEL_SERVICE_NAME", "vllm-server")
 TICK_S = 0.5                 # simulation step
 BASE_RPS = float(os.getenv("BASE_RPS", "0.6"))
 DIURNAL_PERIOD_S = float(os.getenv("DIURNAL_PERIOD_S", "600"))   # sped-up "day"
-INCIDENT_PERIOD_S = float(os.getenv("INCIDENT_PERIOD_S", "420"))
-INCIDENT_DURATION_S = float(os.getenv("INCIDENT_DURATION_S", "90"))
-INCIDENT_BOOST = float(os.getenv("INCIDENT_BOOST", "3.0"))
+
+# SCENARIO selects a preset; explicit INCIDENT_* env vars still override.
+# steady = no bursts, burst = default ~7m cycle, recovery = faster demo cycle
+SCENARIO = os.getenv("SCENARIO", "burst").lower()
+_SCENARIO_PRESETS = {
+    "steady": {"period": 86_400.0, "duration": 0.0, "boost": 1.0},
+    "burst": {"period": 420.0, "duration": 90.0, "boost": 3.0},
+    "recovery": {"period": 180.0, "duration": 45.0, "boost": 2.5},
+}
+
+
+def _resolve_incident_knobs(scenario):
+    preset = _SCENARIO_PRESETS.get(scenario, _SCENARIO_PRESETS["burst"])
+    return (
+        float(os.getenv("INCIDENT_PERIOD_S", str(preset["period"]))),
+        float(os.getenv("INCIDENT_DURATION_S", str(preset["duration"]))),
+        float(os.getenv("INCIDENT_BOOST", str(preset["boost"]))),
+    )
+
+
+INCIDENT_PERIOD_S, INCIDENT_DURATION_S, INCIDENT_BOOST = _resolve_incident_knobs(SCENARIO)
 
 MAX_RUNNING = 24             # concurrent decode batch cap
 MAX_WAITING = 64             # queue bound; beyond this new requests get 429
@@ -228,9 +270,13 @@ def emit_request_span(req, status_code, finish_reason=None):
     span.end(end_time=end_ns)
 
 
-def incident_active_at(elapsed):
+def incident_active_at(elapsed, period=None, duration=None):
     """True when elapsed sits in the trailing burst window of each incident period."""
-    return (elapsed % INCIDENT_PERIOD_S) > (INCIDENT_PERIOD_S - INCIDENT_DURATION_S)
+    period = INCIDENT_PERIOD_S if period is None else period
+    duration = INCIDENT_DURATION_S if duration is None else duration
+    if duration <= 0:
+        return False
+    return (elapsed % period) > (period - duration)
 
 
 # ---------------------------------------------------------------------------
@@ -278,9 +324,13 @@ def arrival_rate(now, incident_active):
 
 def main():
     setup_telemetry()
-    start_http_server(8000, registry=vllm_reg)
-    start_http_server(9400, registry=dcgm_reg)
-    print(f"simulator up: vLLM metrics :8000, DCGM metrics :9400, traces -> {OTLP_ENDPOINT}", flush=True)
+    start_metrics_server(8000, vllm_reg)
+    start_metrics_server(9400, dcgm_reg)
+    print(
+        f"simulator up: scenario={SCENARIO} vLLM :8000 DCGM :9400 "
+        f"incident={INCIDENT_PERIOD_S:.0f}s/{INCIDENT_DURATION_S:.0f}s traces -> {OTLP_ENDPOINT}",
+        flush=True,
+    )
 
     engine_log.info("Started vLLM engine (model=%s, max_num_seqs=%d)", MODEL_NAME, MAX_RUNNING)
 
