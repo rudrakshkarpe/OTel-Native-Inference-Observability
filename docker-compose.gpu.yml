@@ -1,0 +1,53 @@
+# GPU-mode overlay: swaps the simulator for real vLLM + dcgm-exporter.
+# Requires a Linux host with NVIDIA GPUs and the NVIDIA container toolkit.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
+# See docs/gpu-mode.md.
+
+services:
+  simulator:
+    deploy:
+      replicas: 0   # simulator off; real engines take over
+
+  vllm:
+    image: vllm/vllm-openai:latest
+    container_name: vllm
+    command:
+      - --model=Qwen/Qwen2.5-7B-Instruct
+      - --served-model-name=qwen2.5-7b-instruct
+      - --otlp-traces-endpoint=grpc://otel-collector:4317
+    environment:
+      HUGGING_FACE_HUB_TOKEN: ${HUGGING_FACE_HUB_TOKEN:-}
+    ports:
+      - "8000:8000"
+    ipc: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    depends_on:
+      - otel-collector
+    restart: unless-stopped
+
+  dcgm-exporter:
+    image: nvcr.io/nvidia/k8s/dcgm-exporter:3.3.9-3.6.1-ubuntu22.04
+    container_name: dcgm-exporter
+    cap_add:
+      - SYS_ADMIN
+    ports:
+      - "9400:9400"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+
+  otel-collector:
+    environment:
+      VLLM_METRICS_TARGET: vllm:8000
+      DCGM_METRICS_TARGET: dcgm-exporter:9400
