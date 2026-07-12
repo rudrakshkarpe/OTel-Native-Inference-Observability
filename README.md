@@ -1,4 +1,4 @@
-# LLM Inference Observatory
+# OTel-Native LLM Inference Observatory
 
 **OpenTelemetry-native observability for GPU LLM inference** — a reference
 architecture and reusable POC for vLLM + NVIDIA DCGM workloads.
