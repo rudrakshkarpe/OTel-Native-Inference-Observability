@@ -1,6 +1,9 @@
 # OpenTelemetry Collector pipeline: identical in demo mode and GPU mode.
 # Only the scrape targets change (VLLM_METRICS_TARGET / DCGM_METRICS_TARGET),
 # so dashboards and alert rules built on this data model work in both.
+#
+# Processor order matters: memory_limiter first (protect the host), resource
+# enrichment next (stamp every signal), batch last (efficient export).
 
 extensions:
   bearertokenauth/dash0:
@@ -22,10 +25,14 @@ receivers:
           scrape_interval: 15s
           static_configs:
             - targets: ["${env:VLLM_METRICS_TARGET}"]
+              labels:
+                telemetry.source: vllm
         - job_name: dcgm
           scrape_interval: 15s
           static_configs:
             - targets: ["${env:DCGM_METRICS_TARGET}"]
+              labels:
+                telemetry.source: dcgm
 
 processors:
   memory_limiter:
@@ -41,6 +48,15 @@ processors:
       - key: deployment.environment.name
         value: demo
         action: upsert
+      - key: observability.pipeline
+        value: otel-native-llm-inference
+        action: upsert
+
+  attributes/enrich:
+    actions:
+      - key: collector.purpose
+        value: llm-inference-observatory
+        action: upsert
 
   batch:
     send_batch_size: 8192
@@ -54,7 +70,7 @@ exporters:
     headers:
       Dash0-Dataset: ${env:DASH0_DATASET}
 
-  # Local visibility: proves the pipeline works even without a Dash0 account.
+  # Local visibility: proves the pipeline works even without a backend account.
   debug:
     verbosity: basic
 
@@ -63,13 +79,13 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [memory_limiter, resource, batch]
+      processors: [memory_limiter, resource, attributes/enrich, batch]
       exporters: [otlp/dash0, debug]
     metrics:
       receivers: [prometheus, otlp]
-      processors: [memory_limiter, resource, batch]
+      processors: [memory_limiter, resource, attributes/enrich, batch]
       exporters: [otlp/dash0, debug]
     logs:
       receivers: [otlp]
-      processors: [memory_limiter, resource, batch]
+      processors: [memory_limiter, resource, attributes/enrich, batch]
       exporters: [otlp/dash0, debug]
