@@ -1,0 +1,4 @@
+pytest==8.3.5
+prometheus-client==0.20.0
+opentelemetry-sdk==1.25.0
+opentelemetry-exporter-otlp-proto-grpc==1.25.0

@@ -126,39 +126,41 @@ SM_CLOCK = Gauge("DCGM_FI_DEV_SM_CLOCK", "SM clock frequency (in MHz)", DL, regi
 SM_ACTIVE = Gauge("DCGM_FI_PROF_SM_ACTIVE", "Ratio of cycles at least one warp was active", DL, registry=dcgm_reg)
 
 # ---------------------------------------------------------------------------
-# Tracing — OTel GenAI semantic conventions
+# Tracing / logging — initialized lazily so unit tests can import pure helpers
+# without opening an OTLP connection.
 # ---------------------------------------------------------------------------
-
-resource = Resource.create(
-    {
-        "service.name": SERVICE_NAME,
-        "service.version": "0.8.5-sim",
-        "service.namespace": "llm-inference",
-    }
-)
-provider = TracerProvider(resource=resource)
-provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter(endpoint=OTLP_ENDPOINT, insecure=True)))
-trace.set_tracer_provider(provider)
-tracer = trace.get_tracer("llm-inference-simulator")
-
-# ---------------------------------------------------------------------------
-# Logging — OTLP log records sharing the same resource as traces & metrics.
-# The LoggingHandler stamps each record with the currently-active span's
-# trace_id/span_id, so per-request logs correlate to their trace.
-# ---------------------------------------------------------------------------
-
-logger_provider = LoggerProvider(resource=resource)
-logger_provider.add_log_record_processor(
-    BatchLogRecordProcessor(OTLPLogExporter(endpoint=OTLP_ENDPOINT, insecure=True))
-)
-set_logger_provider(logger_provider)
-
-engine_log = logging.getLogger("vllm.engine")
-engine_log.setLevel(logging.INFO)
-engine_log.addHandler(LoggingHandler(level=logging.INFO, logger_provider=logger_provider))
-engine_log.propagate = False
 
 NS = 1_000_000_000
+tracer = None
+engine_log = logging.getLogger("vllm.engine")
+
+
+def setup_telemetry():
+    """Wire OTLP traces and logs. Called once from main()."""
+    global tracer, engine_log
+
+    resource = Resource.create(
+        {
+            "service.name": SERVICE_NAME,
+            "service.version": "0.8.5-sim",
+            "service.namespace": "llm-inference",
+        }
+    )
+    provider = TracerProvider(resource=resource)
+    provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter(endpoint=OTLP_ENDPOINT, insecure=True)))
+    trace.set_tracer_provider(provider)
+    tracer = trace.get_tracer("llm-inference-simulator")
+
+    logger_provider = LoggerProvider(resource=resource)
+    logger_provider.add_log_record_processor(
+        BatchLogRecordProcessor(OTLPLogExporter(endpoint=OTLP_ENDPOINT, insecure=True))
+    )
+    set_logger_provider(logger_provider)
+
+    engine_log = logging.getLogger("vllm.engine")
+    engine_log.setLevel(logging.INFO)
+    engine_log.addHandler(LoggingHandler(level=logging.INFO, logger_provider=logger_provider))
+    engine_log.propagate = False
 
 
 def emit_request_span(req, status_code, finish_reason=None):
@@ -226,6 +228,11 @@ def emit_request_span(req, status_code, finish_reason=None):
     span.end(end_time=end_ns)
 
 
+def incident_active_at(elapsed):
+    """True when elapsed sits in the trailing burst window of each incident period."""
+    return (elapsed % INCIDENT_PERIOD_S) > (INCIDENT_PERIOD_S - INCIDENT_DURATION_S)
+
+
 # ---------------------------------------------------------------------------
 # Workload simulation
 # ---------------------------------------------------------------------------
@@ -270,6 +277,7 @@ def arrival_rate(now, incident_active):
 
 
 def main():
+    setup_telemetry()
     start_http_server(8000, registry=vllm_reg)
     start_http_server(9400, registry=dcgm_reg)
     print(f"simulator up: vLLM metrics :8000, DCGM metrics :9400, traces -> {OTLP_ENDPOINT}", flush=True)
@@ -290,7 +298,7 @@ def main():
         elapsed = now - sim_start
 
         # incident sits at the end of each period, so the first minutes are calm
-        incident_active = (elapsed % INCIDENT_PERIOD_S) > (INCIDENT_PERIOD_S - INCIDENT_DURATION_S)
+        incident_active = incident_active_at(elapsed)
         if incident_active and not incident_was_active:
             print(f"[incident] saturation burst started at {time.strftime('%H:%M:%S')}", flush=True)
         if incident_was_active and not incident_active:
