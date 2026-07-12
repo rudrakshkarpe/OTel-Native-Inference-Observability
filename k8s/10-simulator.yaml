@@ -26,11 +26,25 @@ spec:
               value: vllm-server
             - name: MODEL_NAME
               value: qwen2.5-7b-instruct
+            - name: SCENARIO
+              value: burst
           ports:
             - name: vllm-metrics
               containerPort: 8000
             - name: dcgm-metrics
               containerPort: 9400
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: vllm-metrics
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: vllm-metrics
+            initialDelaySeconds: 5
+            periodSeconds: 20
           resources:
             requests:
               cpu: 100m
