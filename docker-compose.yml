@@ -1,0 +1,35 @@
+name: llm-inference-observatory-dash0
+
+services:
+  simulator:
+    build: ./simulator
+    container_name: llm-simulator
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: vllm-server
+      MODEL_NAME: qwen2.5-7b-instruct
+    ports:
+      - "8000:8000"   # vLLM-shaped /metrics
+      - "9400:9400"   # DCGM-shaped /metrics
+    depends_on:
+      - otel-collector
+    restart: unless-stopped
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.109.0
+    container_name: otel-collector
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./collector/config.yaml:/etc/otelcol/config.yaml:ro
+    environment:
+      # Values come from .env (compose interpolation); defaults keep the stack
+      # runnable with no Dash0 account — the debug exporter still shows data.
+      DASH0_ENDPOINT: ${DASH0_ENDPOINT:-ingress.eu-west-1.aws.dash0.com:4317}
+      DASH0_AUTH_TOKEN: ${DASH0_AUTH_TOKEN:-token-not-set}
+      DASH0_DATASET: ${DASH0_DATASET:-default}
+      VLLM_METRICS_TARGET: ${VLLM_METRICS_TARGET:-simulator:8000}
+      DCGM_METRICS_TARGET: ${DCGM_METRICS_TARGET:-simulator:9400}
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    restart: unless-stopped
