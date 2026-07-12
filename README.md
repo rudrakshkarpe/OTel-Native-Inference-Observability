@@ -1,16 +1,15 @@
-# LLM Inference Observatory — OpenTelemetry-native, on Dash0
+# LLM Inference Observatory
 
-**A reference architecture and reusable POC template for observing GPU LLM
-inference workloads (vLLM + NVIDIA DCGM) with a single OpenTelemetry
-pipeline, shipping to [Dash0](https://www.dash0.com).**
+**OpenTelemetry-native observability for GPU LLM inference** — a reference
+architecture and reusable POC for vLLM + NVIDIA DCGM workloads.
 
 One standard, every signal: engine metrics, GPU fleet metrics, and per-request
 traces following the [OTel GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/)
-flow through one OpenTelemetry Collector into Dash0 — no proprietary agents,
-no vendor formats, dashboards as code.
+flow through a single OpenTelemetry Collector. No proprietary agents, no
+vendor-specific data models, dashboards as code.
 
 <p align="center">
-  <img src="docs/diagrams/reference-architecture.svg" alt="Reference architecture: vLLM + DCGM → one OpenTelemetry Collector → Dash0" width="960">
+  <img src="docs/diagrams/reference-architecture.svg" alt="Reference architecture: vLLM + DCGM → one OpenTelemetry Collector → OTLP backend" width="960">
 </p>
 
 ## The problem
@@ -40,25 +39,30 @@ any laptop, because the telemetry sources are simulated with full fidelity.
 ```bash
 git clone <this-repo> && cd llm-inference-observatory-dash0
 
-# 1. Connect your Dash0 org (free trial works):
-#    app.dash0.com → Settings → Endpoints (OTLP/gRPC) + Auth Tokens
-cp .env.example .env   # paste DASH0_ENDPOINT and DASH0_AUTH_TOKEN
-
-# 2. Launch
+cp .env.example .env   # optional: paste OTLP endpoint + token (e.g. Dash0)
 make up                # docker compose up -d --build
 
-# 3. Watch data arrive in Dash0 (traces + metrics within ~30s),
-#    or inspect the stream locally without any account:
+# Inspect the stream locally (works with or without a backend account):
 make logs              # collector debug exporter
-make validate          # compose check + sample scraped metrics
+make validate          # compose check + sample scraped metrics + health
+make demo-script       # printed TTFT investigation narrative
 ```
 
-No Dash0 token yet? Everything still runs — the collector's `debug` exporter
-prints the full telemetry stream locally while the Dash0 exporter retries.
+Import the Perses dashboards under [`dashboards/perses/`](dashboards/perses/)
+into your backend — kept in git, deployable through a release pipeline rather
+than built by hand in a UI.
 
-Then import [`dashboards/perses/llm-inference-overview.json`](dashboards/perses/llm-inference-overview.json)
-— a [Perses](https://perses.dev)-format dashboard kept in git, deployable
-through a release pipeline rather than built by hand in a UI.
+## Why Dash0
+
+This project is **OpenTelemetry-native first**. The data model, collector, and
+dashboards do not depend on a proprietary format.
+
+[Dash0](https://www.dash0.com) is the OTLP backend we use for demos because it
+keeps that open model intact: Perses dashboards as code, check rules from
+`PrometheusRule`, and a Kubernetes operator that lights up infrastructure
+alongside Services/Tracing — without installing a second agent stack on the
+inference node. A free trial works for the quickstart; without credentials the
+collector's `debug` exporter still shows the full stream locally.
 
 ## What you'll see
 
@@ -70,14 +74,15 @@ The simulated workload is a small queueing model, not random noise:
 - **A bounded decode batch**, so queue depth drives time-to-first-token
   exactly as it does in a real engine; inter-token latency degrades with
   batch size.
-- **A saturation incident every ~7 minutes**: a 90-second 3× burst. Queue
-  climbs → KV-cache hits ~95% → P99 TTFT spikes → 429-status error spans
-  appear — then it drains and recovers.
+- **Scenarios** via `SCENARIO=steady|burst|recovery` (`make scenario-burst`,
+  etc.). Default `burst`: a saturation incident every ~7 minutes (90s, 3×).
+  Queue climbs → KV-cache hits ~95% → P99 TTFT spikes → 429-status error spans
+  — then it drains and recovers.
 
-That last part is the demo script: open Dash0 and ask *"why did P99
-time-to-first-token spike five minutes ago?"* The answer is written across
-correlated metrics and traces from one pipeline — queue-time histograms, KV
-cache pressure, and the individual rejected requests as `gen_ai.*` spans.
+Demo script: ask *"why did P99 time-to-first-token spike five minutes ago?"*
+The answer is written across correlated metrics and traces from one pipeline —
+queue-time histograms, KV cache pressure, and the individual rejected requests
+as `gen_ai.*` spans.
 
 ## Telemetry data model
 
@@ -89,11 +94,8 @@ cache pressure, and the individual rejected requests as `gen_ai.*` spans.
 | Logs | OTLP logs, trace-correlated | vLLM-style engine throughput lines, per-request outcomes, preemption warnings; each request log carries its `trace_id` for log→trace pivot |
 | Resources | OTel resource semconv | `service.namespace=llm-inference`, `deployment.environment.name=demo` |
 
-All three signals share one resource and one collector pipeline, so a 429
-log line links straight to its trace, which links to the metrics for the same
-window — the full "one standard, every signal" story.
-
-Full rationale in [docs/architecture.md](docs/architecture.md).
+Full inventory: [docs/metrics-catalog.md](docs/metrics-catalog.md).
+Rationale: [docs/architecture.md](docs/architecture.md).
 
 ## Demo mode vs GPU mode
 
@@ -108,44 +110,40 @@ modes — only the scrape targets change.
 | Hardware | any laptop | NVIDIA host |
 
 GPU mode details: [docs/gpu-mode.md](docs/gpu-mode.md).
+Drive traffic with `make loadgen` once the real engine is up.
 
 ## Production-shaped Kubernetes deployment
 
-`docker compose up` is the quickstart. For the full picture — where Dash0's
-**Kubernetes Monitoring** (Deployments/Pods) and **Alerting** (check rules)
-light up next to Services/Tracing — deploy onto a local k3d cluster with the
-Dash0 operator:
+`docker compose up` is the quickstart. For a cluster-shaped demo — infrastructure
+monitoring and check rules next to Services/Tracing — deploy onto local k3d:
 
 ```bash
-make k8s-up      # k3d cluster + Dash0 operator + workloads + check rules
+make k8s-up      # k3d cluster + operator + workloads + check rules
 make k8s-status
 make k8s-nuke    # tear it all down
 ```
 
-This installs the Dash0 Kubernetes operator (infrastructure monitoring + pod
-logs), runs the simulator and collector as k8s workloads, and ships four
-**check rules as code** (`PrometheusRule` → Dash0 check rules) that trip during
-the saturation incident. Full details: [k8s/README.md](k8s/README.md).
+Full details: [k8s/README.md](k8s/README.md).
 
 ## Repo layout
 
 ```
 collector/config.yaml        one collector pipeline for both modes
 simulator/                   vLLM+DCGM-faithful workload simulator
+scripts/loadgen.py           OpenAI-compatible client for GPU mode
 docker-compose.yml           demo mode
 docker-compose.gpu.yml       GPU overlay (real vLLM + dcgm-exporter)
 k8s/                         production-shaped k3d deployment + check rules
 dashboards/perses/           dashboards as code (Perses spec)
-docs/                        architecture & GPU-mode guides
+docs/                        architecture, GPU mode, metrics catalog
+tests/                       simulator unit tests
 ```
 
 ## Roadmap
 
-- Query the incident through Dash0's MCP server from an AI agent
+- Query the incident through an MCP server from an AI agent
   ("agents query the same data as humans")
 - Add the [fake GPU operator](https://github.com/run-ai/fake-gpu-operator) to
-  the k8s deployment for simulated GPU node topology (scheduling demos); this
-  simulator still supplies the vLLM engine metrics and `gen_ai.*` traces the
-  operator does not model.
-- Manage check rules and dashboards via the Dash0 Terraform provider as an
-  alternative to the operator
+  the k8s deployment for simulated GPU node topology
+- Manage check rules and dashboards via Terraform as an alternative to the
+  operator path
