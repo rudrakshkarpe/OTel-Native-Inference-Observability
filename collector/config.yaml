@@ -1,0 +1,75 @@
+# OpenTelemetry Collector pipeline: identical in demo mode and GPU mode.
+# Only the scrape targets change (VLLM_METRICS_TARGET / DCGM_METRICS_TARGET),
+# so dashboards and alert rules built on this data model work in both.
+
+extensions:
+  bearertokenauth/dash0:
+    scheme: Bearer
+    token: ${env:DASH0_AUTH_TOKEN}
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: vllm
+          scrape_interval: 15s
+          static_configs:
+            - targets: ["${env:VLLM_METRICS_TARGET}"]
+        - job_name: dcgm
+          scrape_interval: 15s
+          static_configs:
+            - targets: ["${env:DCGM_METRICS_TARGET}"]
+
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 400
+    spike_limit_mib: 100
+
+  resource:
+    attributes:
+      - key: service.namespace
+        value: llm-inference
+        action: upsert
+      - key: deployment.environment.name
+        value: demo
+        action: upsert
+
+  batch:
+    send_batch_size: 8192
+    timeout: 5s
+
+exporters:
+  otlp/dash0:
+    endpoint: ${env:DASH0_ENDPOINT}
+    auth:
+      authenticator: bearertokenauth/dash0
+    headers:
+      Dash0-Dataset: ${env:DASH0_DATASET}
+
+  # Local visibility: proves the pipeline works even without a Dash0 account.
+  debug:
+    verbosity: basic
+
+service:
+  extensions: [bearertokenauth/dash0]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [otlp/dash0, debug]
+    metrics:
+      receivers: [prometheus, otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [otlp/dash0, debug]
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [otlp/dash0, debug]
