@@ -1,0 +1,67 @@
+# Our own collector runs in-cluster so the vLLM (:8000) and DCGM (:9400) scrape
+# jobs and the GenAI-semconv traces stay byte-identical to the compose demo.
+# The Dash0 operator handles Kubernetes *infrastructure* telemetry separately.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-collector
+  namespace: llm-inference
+  labels:
+    app: otel-collector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otel-collector
+  template:
+    metadata:
+      labels:
+        app: otel-collector
+    spec:
+      containers:
+        - name: otel-collector
+          image: otel/opentelemetry-collector-contrib:0.109.0
+          args: ["--config=/etc/otelcol/config.yaml"]
+          envFrom:
+            # dash0-secret is created out-of-band from .env (keeps the token out
+            # of git): kubectl create secret generic dash0-secret \
+            #   --from-env-file=.env -n llm-inference
+            - secretRef:
+                name: dash0-secret
+          volumeMounts:
+            - name: config
+              mountPath: /etc/otelcol
+          ports:
+            - name: otlp-grpc
+              containerPort: 4317
+            - name: otlp-http
+              containerPort: 4318
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+      volumes:
+        - name: config
+          configMap:
+            name: otel-collector-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-collector
+  namespace: llm-inference
+  labels:
+    app: otel-collector
+spec:
+  selector:
+    app: otel-collector
+  ports:
+    - name: otlp-grpc
+      port: 4317
+      targetPort: 4317
+    - name: otlp-http
+      port: 4318
+      targetPort: 4318

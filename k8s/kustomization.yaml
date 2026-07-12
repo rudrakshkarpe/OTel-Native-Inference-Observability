@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - 00-namespace.yaml
+  - 10-simulator.yaml
+  - 20-collector.yaml
+  - 30-dash0-monitoring.yaml
+  - 40-check-rules.yaml
+
+# NOTE: the otel-collector-config ConfigMap and the dash0-secret Secret are
+# created imperatively (see Makefile `k8s-up` / k8s/README.md), because:
+#   - the collector config is the SAME file the compose demo uses
+#     (../collector/config.yaml), which kustomize refuses to read from outside
+#     its own directory;
+#   - the secret is sourced from the gitignored .env so the token never lands
+#     in a manifest.

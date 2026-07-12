@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-simulator
+  namespace: llm-inference
+  labels:
+    app: vllm-simulator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vllm-simulator
+  template:
+    metadata:
+      labels:
+        app: vllm-simulator
+    spec:
+      containers:
+        - name: simulator
+          image: llm-inference-observatory-dash0-simulator:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://otel-collector:4317
+            - name: OTEL_SERVICE_NAME
+              value: vllm-server
+            - name: MODEL_NAME
+              value: qwen2.5-7b-instruct
+          ports:
+            - name: vllm-metrics
+              containerPort: 8000
+            - name: dcgm-metrics
+              containerPort: 9400
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: simulator
+  namespace: llm-inference
+  labels:
+    app: vllm-simulator
+spec:
+  selector:
+    app: vllm-simulator
+  ports:
+    - name: vllm-metrics
+      port: 8000
+      targetPort: 8000
+    - name: dcgm-metrics
+      port: 9400
+      targetPort: 9400

@@ -1,0 +1,60 @@
+# Alerting as code. The Dash0 operator syncs these PrometheusRule entries into
+# Dash0 check rules. Each expression compares against Dash0's `$__threshold`
+# token; the dash0-threshold-degraded / dash0-threshold-critical annotations
+# supply the two severity levels. All four trip during the simulator's
+# periodic saturation incident, lighting up "Failed checks" (Degraded/Critical).
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: vllm-inference-checks
+  namespace: llm-inference
+  labels:
+    app.kubernetes.io/part-of: llm-inference-observatory
+spec:
+  groups:
+    - name: vllm-slo
+      interval: 1m # Dash0 requires an evaluation interval of at least 1 minute
+      rules:
+        - alert: HighTimeToFirstTokenP99
+          expr: histogram_quantile(0.99, sum by (le) (rate(vllm:time_to_first_token_seconds_bucket[5m]))) > $__threshold
+          for: 1m
+          labels:
+            signal: latency
+            service: vllm-server
+          annotations:
+            summary: "vLLM P99 time-to-first-token is high"
+            description: "P99 TTFT crossed the SLO — users are waiting too long for the first token, usually queueing under load."
+            dash0-threshold-degraded: "1"
+            dash0-threshold-critical: "2.5"
+        - alert: KVCacheSaturated
+          expr: max(vllm:kv_cache_usage_perc) > $__threshold
+          for: 1m
+          labels:
+            signal: saturation
+            service: vllm-server
+          annotations:
+            summary: "vLLM KV-cache usage is saturated"
+            description: "KV-cache is near capacity; the engine will start preempting and recomputing sequences, degrading throughput."
+            dash0-threshold-degraded: "0.85"
+            dash0-threshold-critical: "0.95"
+        - alert: RequestQueueBacklog
+          expr: sum(vllm:num_requests_waiting) > $__threshold
+          for: 1m
+          labels:
+            signal: saturation
+            service: vllm-server
+          annotations:
+            summary: "vLLM request queue is backing up"
+            description: "Requests are waiting to be scheduled — the leading indicator of a time-to-first-token spike."
+            dash0-threshold-degraded: "5"
+            dash0-threshold-critical: "20"
+        - alert: GPUTemperatureHigh
+          expr: max(DCGM_FI_DEV_GPU_TEMP) > $__threshold
+          for: 2m
+          labels:
+            signal: hardware
+          annotations:
+            summary: "GPU temperature is high"
+            description: "One or more GPUs are running hot under sustained inference load."
+            dash0-threshold-degraded: "80"
+            dash0-threshold-critical: "87"

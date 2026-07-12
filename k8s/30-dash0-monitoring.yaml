@@ -1,0 +1,20 @@
+# Enables the Dash0 operator for this namespace: collects pod logs & k8s
+# telemetry, and (critically) tells the operator to sync PrometheusRule
+# resources here into Dash0 check rules.
+#
+# instrumentWorkloads: none  -> our simulator and collector already emit their
+# own OpenTelemetry data, so we don't want the operator injecting auto-
+# instrumentation on top of them. The namespace is still monitored.
+#
+# prometheusScraping.enabled: false -> our dedicated collector already scrapes
+# both metric ports (:8000 vLLM, :9400 DCGM); disabling operator scraping here
+# avoids double-collecting those series.
+apiVersion: operator.dash0.com/v1alpha1
+kind: Dash0Monitoring
+metadata:
+  name: dash0-monitoring
+  namespace: llm-inference
+spec:
+  instrumentWorkloads: none
+  prometheusScraping:
+    enabled: false
