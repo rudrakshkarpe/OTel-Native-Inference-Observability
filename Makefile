@@ -1,4 +1,4 @@
-.PHONY: up down logs restart validate gpu-up gpu-down k8s-up k8s-down k8s-nuke k8s-status scenario-burst scenario-steady scenario-recovery demo-script test
+.PHONY: up down logs restart validate gpu-up gpu-down k8s-up k8s-down k8s-nuke k8s-status scenario-burst scenario-steady scenario-recovery demo-script test loadgen
 
 up: ## Start demo mode (simulator + OTel Collector -> OTLP backend)
 	docker compose up -d --build
@@ -62,10 +62,13 @@ demo-script: ## Print the TTFT investigation narrative for live demos
 		'4. Ask: why did P99 time-to-first-token spike five minutes ago?' \
 		'' \
 		'Causal chain written into the telemetry:' \
-		'  queue depth waiting  ->  KV-cache ~95%  ->  P99 TTFT spike  ->  429 spans/logs' \
+		'  queue request waiting  ->  KV-cache ~95%  ->  P99 TTFT spike  ->  429 spans/logs' \
 		'  Pivot: metric window -> gen_ai.* spans -> trace-correlated engine logs' \
 		'' \
 		'Import dashboards/perses/*.json into your OTLP backend (e.g. Dash0).'
 
 test: ## Run simulator unit tests
 	pytest -q
+
+loadgen: ## Drive traffic at a real vLLM endpoint (GPU mode)
+	python3 scripts/loadgen.py --base-url $${VLLM_BASE_URL:-http://localhost:8000} --rps $${LOADGEN_RPS:-0.5} --duration $${LOADGEN_DURATION:-120}
