@@ -1,0 +1,120 @@
+<svg viewBox="0 0 1240 760" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','Helvetica Neue',Arial,sans-serif">
+  <defs>
+    <linearGradient id="dash0" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FF6A3D"/>
+      <stop offset="0.55" stop-color="#F0407F"/>
+      <stop offset="1" stop-color="#9B4DEB"/>
+    </linearGradient>
+    <marker id="aGray" markerWidth="12" markerHeight="12" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#5A5F68"/>
+    </marker>
+    <marker id="aTeal" markerWidth="12" markerHeight="12" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#2FD4A7"/>
+    </marker>
+    <marker id="aViolet" markerWidth="12" markerHeight="12" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#A78BFA"/>
+    </marker>
+    <marker id="aAmber" markerWidth="12" markerHeight="12" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#FBBF24"/>
+    </marker>
+  </defs>
+
+  <!-- canvas -->
+  <rect width="1240" height="760" rx="16" fill="#0B0C0E"/>
+  <rect x="1" y="1" width="1238" height="758" rx="15" fill="none" stroke="#1D1F23"/>
+
+  <!-- title -->
+  <text x="40" y="54" fill="#F4F5F7" font-size="25" font-weight="700">LLM Inference Observability — Reference Architecture</text>
+  <text x="40" y="82" fill="#8A9099" font-size="14.5">One OpenTelemetry pipeline for vLLM + GPU workloads → Dash0. Byte-identical config from laptop to production GPU node.</text>
+
+  <!-- ============ LEFT: sources ============ -->
+  <!-- Panel A: inference workload -->
+  <rect x="40" y="120" width="300" height="244" rx="14" fill="#141518" stroke="#262A30"/>
+  <text x="60" y="148" fill="#6B7280" font-size="11.5" font-weight="600" letter-spacing="1.5">INFERENCE WORKLOAD</text>
+
+  <rect x="60" y="164" width="260" height="60" rx="10" fill="#1E2024" stroke="#33373E"/>
+  <text x="76" y="190" fill="#E6E8EB" font-size="15.5" font-weight="600">vLLM engine</text>
+  <text x="76" y="210" fill="#8A9099" font-size="12">vllm:* metrics · OTLP traces + logs</text>
+
+  <rect x="60" y="234" width="260" height="60" rx="10" fill="#1E2024" stroke="#33373E"/>
+  <text x="76" y="260" fill="#E6E8EB" font-size="15.5" font-weight="600">DCGM exporter</text>
+  <text x="76" y="280" fill="#8A9099" font-size="12">DCGM_FI_* GPU metrics</text>
+
+  <text x="60" y="332" fill="#6B7280" font-size="12" font-style="italic">demo: simulator (no GPU)  ·  prod: real GPU node</text>
+  <text x="60" y="350" fill="#6B7280" font-size="12" font-style="italic">same metric names &amp; semantics either way</text>
+
+  <!-- Panel B: kubernetes -->
+  <rect x="40" y="392" width="300" height="150" rx="14" fill="#141518" stroke="#262A30"/>
+  <text x="60" y="420" fill="#6B7280" font-size="11.5" font-weight="600" letter-spacing="1.5">KUBERNETES</text>
+  <rect x="60" y="436" width="260" height="80" rx="10" fill="#1E2024" stroke="#33373E"/>
+  <text x="76" y="464" fill="#E6E8EB" font-size="15.5" font-weight="600">Dash0 Operator</text>
+  <text x="76" y="484" fill="#8A9099" font-size="12">infra metrics · pod logs</text>
+  <text x="76" y="502" fill="#8A9099" font-size="12">check-rule sync (PrometheusRule)</text>
+
+  <!-- ============ MIDDLE: collector ============ -->
+  <rect x="470" y="214" width="300" height="200" rx="14" fill="#2C2F8C" stroke="#5B63E6"/>
+  <text x="620" y="252" fill="#FFFFFF" font-size="18" font-weight="700" text-anchor="middle">OpenTelemetry Collector</text>
+  <line x1="494" y1="268" x2="746" y2="268" stroke="#4A4EA8"/>
+
+  <circle cx="500" cy="298" r="3.5" fill="#C7CAF0"/>
+  <text x="514" y="303" fill="#D9DBF5" font-size="12.5"><tspan font-weight="600">Receivers</tspan>  OTLP · Prometheus</text>
+  <circle cx="500" cy="332" r="3.5" fill="#C7CAF0"/>
+  <text x="514" y="337" fill="#D9DBF5" font-size="12.5"><tspan font-weight="600">Processors</tspan>  memory_limiter · resource · batch</text>
+  <circle cx="500" cy="366" r="3.5" fill="#C7CAF0"/>
+  <text x="514" y="371" fill="#D9DBF5" font-size="12.5"><tspan font-weight="600">Exporters</tspan>  OTLP + Bearer auth</text>
+
+  <!-- sources -> collector -->
+  <path d="M340,194 H432 V300 H466" fill="none" stroke="#5A5F68" stroke-width="2" marker-end="url(#aGray)"/>
+  <path d="M340,264 H432 V300" fill="none" stroke="#5A5F68" stroke-width="2"/>
+  <text x="356" y="185" fill="#8A9099" font-size="11.5">scrape + OTLP</text>
+
+  <!-- ============ RIGHT: Dash0 ============ -->
+  <rect x="900" y="120" width="308" height="478" rx="14" fill="#141518" stroke="#262A30"/>
+  <text x="920" y="148" fill="#6B7280" font-size="11.5" font-weight="600" letter-spacing="1.5">DASH0 · OTLP INGEST (europe-west4)</text>
+
+  <rect x="920" y="164" width="268" height="54" rx="10" fill="url(#dash0)"/>
+  <circle cx="951" cy="191" r="9" fill="#0B0C0E" opacity="0.85"/>
+  <circle cx="951" cy="191" r="4" fill="#FFFFFF"/>
+  <text x="972" y="197" fill="#FFFFFF" font-size="19" font-weight="700">Dash0</text>
+
+  <!-- signal nodes -->
+  <rect x="920" y="232" width="268" height="46" rx="9" fill="#1E2024" stroke="#33373E"/>
+  <circle cx="940" cy="255" r="4.5" fill="#A78BFA"/>
+  <text x="956" y="260" fill="#E6E8EB" font-size="14">Traces — GenAI semconv</text>
+
+  <rect x="920" y="286" width="268" height="46" rx="9" fill="#1E2024" stroke="#33373E"/>
+  <circle cx="940" cy="309" r="4.5" fill="#2FD4A7"/>
+  <text x="956" y="314" fill="#E6E8EB" font-size="14">Metrics — PromQL</text>
+
+  <rect x="920" y="340" width="268" height="46" rx="9" fill="#1E2024" stroke="#33373E"/>
+  <circle cx="940" cy="363" r="4.5" fill="#FBBF24"/>
+  <text x="956" y="368" fill="#E6E8EB" font-size="14">Logs — trace-correlated</text>
+
+  <rect x="920" y="400" width="268" height="46" rx="9" fill="#1E2024" stroke="#33373E"/>
+  <circle cx="940" cy="423" r="4.5" fill="#5A5F68"/>
+  <text x="956" y="428" fill="#E6E8EB" font-size="14">Kubernetes Monitoring</text>
+
+  <rect x="920" y="454" width="268" height="46" rx="9" fill="#1E2024" stroke="#33373E"/>
+  <circle cx="940" cy="477" r="4.5" fill="#5A5F68"/>
+  <text x="956" y="482" fill="#E6E8EB" font-size="14">Check Rules — alerting as code</text>
+
+  <rect x="920" y="508" width="268" height="46" rx="9" fill="#1E2024" stroke="#33373E"/>
+  <circle cx="940" cy="531" r="4.5" fill="#5A5F68"/>
+  <text x="956" y="536" fill="#E6E8EB" font-size="14">Perses dashboards · Agent0 · MCP</text>
+
+  <!-- collector -> Dash0 (three signals) -->
+  <path d="M770,290 H840 V255 H916" fill="none" stroke="#A78BFA" stroke-width="2" marker-end="url(#aViolet)"/>
+  <path d="M770,314 H858 V309 H916" fill="none" stroke="#2FD4A7" stroke-width="2" marker-end="url(#aTeal)"/>
+  <path d="M770,338 H828 V363 H916" fill="none" stroke="#FBBF24" stroke-width="2" marker-end="url(#aAmber)"/>
+
+  <!-- operator -> Dash0 (k8s infra + rules), routed along the bottom -->
+  <path d="M340,476 H400 V648 H882 V423 H916" fill="none" stroke="#5A5F68" stroke-width="2" marker-end="url(#aGray)"/>
+  <path d="M882,477 H916" fill="none" stroke="#5A5F68" stroke-width="2" marker-end="url(#aGray)"/>
+  <text x="470" y="640" fill="#8A9099" font-size="11.5">Dash0 operator → Kubernetes infra, pod logs &amp; check rules (direct OTLP + API)</text>
+
+  <!-- legend -->
+  <circle cx="60" cy="712" r="4.5" fill="#2FD4A7"/><text x="72" y="716" fill="#8A9099" font-size="12">Metrics</text>
+  <circle cx="150" cy="712" r="4.5" fill="#A78BFA"/><text x="162" y="716" fill="#8A9099" font-size="12">Traces</text>
+  <circle cx="238" cy="712" r="4.5" fill="#FBBF24"/><text x="250" y="716" fill="#8A9099" font-size="12">Logs</text>
+  <circle cx="312" cy="712" r="4.5" fill="#5A5F68"/><text x="324" y="716" fill="#8A9099" font-size="12">Kubernetes / operator</text>
+</svg>

@@ -1,0 +1,85 @@
+<svg viewBox="0 0 1240 600" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','Helvetica Neue',Arial,sans-serif">
+  <defs>
+    <marker id="pGray" markerWidth="12" markerHeight="12" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#5A5F68"/>
+    </marker>
+    <marker id="pRed" markerWidth="12" markerHeight="12" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#F4514E"/>
+    </marker>
+  </defs>
+
+  <rect width="1240" height="600" rx="16" fill="#0B0C0E"/>
+  <rect x="1" y="1" width="1238" height="598" rx="15" fill="none" stroke="#1D1F23"/>
+
+  <text x="40" y="52" fill="#F4F5F7" font-size="25" font-weight="700">The Problem — GPU inference telemetry lives in silos</text>
+  <text x="40" y="80" fill="#8A9099" font-size="14.5">Metrics, logs and GPU stats land in different tools with no shared data model. When latency spikes, you can't pivot from symptom to cause.</text>
+
+  <!-- left: the stack -->
+  <rect x="40" y="118" width="290" height="400" rx="14" fill="#141518" stroke="#262A30"/>
+  <text x="60" y="146" fill="#6B7280" font-size="11.5" font-weight="600" letter-spacing="1.5">GPU INFERENCE STACK</text>
+
+  <rect x="60" y="162" width="250" height="56" rx="10" fill="#1E2024" stroke="#33373E"/>
+  <text x="76" y="186" fill="#E6E8EB" font-size="15" font-weight="600">vLLM engine</text>
+  <text x="76" y="205" fill="#8A9099" font-size="12">serving qwen2.5-7b</text>
+
+  <rect x="60" y="228" width="250" height="56" rx="10" fill="#1E2024" stroke="#33373E"/>
+  <text x="76" y="252" fill="#E6E8EB" font-size="15" font-weight="600">GPU fleet — 2× H100</text>
+  <text x="76" y="271" fill="#8A9099" font-size="12">utilization · memory · power</text>
+
+  <rect x="60" y="294" width="250" height="56" rx="10" fill="#1E2024" stroke="#33373E"/>
+  <text x="76" y="318" fill="#E6E8EB" font-size="15" font-weight="600">bursty production traffic</text>
+  <text x="76" y="337" fill="#8A9099" font-size="12">chat · RAG · long-generation</text>
+
+  <rect x="60" y="368" width="250" height="70" rx="10" fill="#2A1517" stroke="#F4514E"/>
+  <text x="76" y="396" fill="#F4514E" font-size="14.5" font-weight="700">⚠  P99 TTFT spikes at 14:32</text>
+  <text x="76" y="416" fill="#C98B8B" font-size="12">users wait seconds for the first token</text>
+
+  <!-- middle: siloed signals -->
+  <rect x="372" y="150" width="372" height="68" rx="10" fill="#1E2024" stroke="#33373E"/>
+  <text x="392" y="180" fill="#E6E8EB" font-size="15" font-weight="600">Engine metrics → Prometheus</text>
+  <text x="392" y="200" fill="#8A9099" font-size="12">counters &amp; latencies, but no request context</text>
+
+  <rect x="372" y="230" width="372" height="68" rx="10" fill="#1E2024" stroke="#33373E"/>
+  <text x="392" y="260" fill="#E6E8EB" font-size="15" font-weight="600">Logs → files / Loki</text>
+  <text x="392" y="280" fill="#8A9099" font-size="12">plain text, no trace IDs to join on</text>
+
+  <rect x="372" y="310" width="372" height="68" rx="10" fill="#1E2024" stroke="#33373E"/>
+  <text x="392" y="340" fill="#E6E8EB" font-size="15" font-weight="600">GPU stats → DCGM dashboard</text>
+  <text x="392" y="360" fill="#8A9099" font-size="12">a separate pane in a separate tool</text>
+
+  <rect x="372" y="390" width="372" height="68" rx="10" fill="#1A1416" stroke="#F4514E" stroke-dasharray="5 4"/>
+  <text x="392" y="420" fill="#E6E8EB" font-size="15" font-weight="600">Request traces → not instrumented</text>
+  <text x="392" y="440" fill="#C98B8B" font-size="12">the per-request pivot you need is missing</text>
+
+  <!-- silo bracket -->
+  <line x1="762" y1="150" x2="762" y2="458" stroke="#F4514E" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="782" y="304" fill="#F4514E" font-size="11.5" font-weight="600" letter-spacing="1.5" transform="rotate(90 782 304)" text-anchor="middle">SILOED · NO SHARED MODEL</text>
+
+  <!-- right: the unanswerable question -->
+  <rect x="852" y="150" width="348" height="308" rx="14" fill="#141518" stroke="#262A30"/>
+  <text x="872" y="178" fill="#6B7280" font-size="11.5" font-weight="600" letter-spacing="1.5">ON-CALL · 14:32</text>
+
+  <rect x="872" y="192" width="308" height="66" rx="10" fill="#2A1517" stroke="#F4514E"/>
+  <text x="1026" y="220" fill="#FFB4B0" font-size="16" font-weight="700" text-anchor="middle">Why did P99 TTFT spike?</text>
+  <text x="1026" y="241" fill="#C98B8B" font-size="12.5" text-anchor="middle">— and which requests were hit?</text>
+
+  <text x="884" y="298" fill="#F4514E" font-size="14" font-weight="700">✕</text>
+  <text x="906" y="298" fill="#B7BCC4" font-size="13.5">three tools, three browser tabs</text>
+  <text x="884" y="330" fill="#F4514E" font-size="14" font-weight="700">✕</text>
+  <text x="906" y="330" fill="#B7BCC4" font-size="13.5">no shared trace_id to pivot on</text>
+  <text x="884" y="362" fill="#F4514E" font-size="14" font-weight="700">✕</text>
+  <text x="906" y="362" fill="#B7BCC4" font-size="13.5">no GenAI / GPU semantics</text>
+  <text x="884" y="396" fill="#FBBF24" font-size="14" font-weight="700">→</text>
+  <text x="906" y="396" fill="#F4D06F" font-size="13.5" font-weight="600">root cause = guesswork</text>
+
+  <!-- connectors: stack -> silos -->
+  <path d="M330,300 H352" fill="none" stroke="#5A5F68" stroke-width="2"/>
+  <path d="M352,184 V424" fill="none" stroke="#5A5F68" stroke-width="2"/>
+  <path d="M352,184 H368" fill="none" stroke="#5A5F68" stroke-width="2" marker-end="url(#pGray)"/>
+  <path d="M352,264 H368" fill="none" stroke="#5A5F68" stroke-width="2" marker-end="url(#pGray)"/>
+  <path d="M352,344 H368" fill="none" stroke="#5A5F68" stroke-width="2" marker-end="url(#pGray)"/>
+  <path d="M352,424 H368" fill="none" stroke="#F4514E" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#pRed)"/>
+
+  <!-- silos -> question (broken) -->
+  <path d="M762,304 H812 V225 H868" fill="none" stroke="#F4514E" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#pRed)"/>
+</svg>
