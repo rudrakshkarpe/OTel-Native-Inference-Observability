@@ -1,8 +1,10 @@
+> Scope: this document describes the optional simulator / live scrape configuration. The verified Dash0 replay uses the sources and metric names in [the replay guide](dash0-replay.md). DCGM was not captured in the H100 run.
+
 # GPU Mode: Real vLLM + DCGM
 
 Demo mode simulates the telemetry sources. GPU mode replaces the simulator
 with the real engines while keeping the collector pipeline, OTLP export, and
-dashboards **unchanged** — that is the point of the architecture.
+dashboards after validating metric names and units against the chosen engine and DCGM versions.
 
 ## Requirements
 
@@ -26,7 +28,7 @@ What the overlay changes:
 | GPU metrics (`DCGM_*`) | simulator `:9400` | `dcgm-exporter` `:9400` |
 | Request traces | simulator via OTLP | vLLM `--otlp-traces-endpoint=grpc://otel-collector:4317` |
 | Collector, processors, OTLP exporter | identical | identical |
-| Dashboards / alerts | identical | identical |
+| Dashboards / alerts | simulator metric family | validate against engine and exporter versions |
 
 The scrape targets are switched purely via the `VLLM_METRICS_TARGET` and
 `DCGM_METRICS_TARGET` environment variables consumed by

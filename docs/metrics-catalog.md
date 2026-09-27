@@ -1,3 +1,5 @@
+> Scope: this document describes the optional simulator / live scrape configuration. The verified Dash0 replay uses the sources and metric names in [the replay guide](dash0-replay.md). DCGM was not captured in the H100 run.
+
 # Metrics and attributes catalog
 
 Complete inventory of signals emitted by the demo simulator (and expected from

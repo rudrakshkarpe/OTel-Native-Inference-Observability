@@ -1,0 +1,17 @@
+{
+  "replay_id": "dash0-h100-20260927",
+  "traces_verified": 6,
+  "span_ids_verified": 123,
+  "parent_ids_verified": 123,
+  "durations_verified": 123,
+  "native_engine_requests": 56,
+  "correlated_request_logs": 61,
+  "error_spans_with_exception": 1,
+  "gpu_query_points": 158,
+  "gpu_peak_utilization_percent": 100.0,
+  "time_range": {
+    "from": "2026-09-27T09:14:18.244651+00:00",
+    "to": "2026-09-27T09:16:56.477864+00:00"
+  },
+  "method": "Public trace/details API for each trace and Prometheus range query; original IDs and durations compared with prepared OTLP payload."
+}

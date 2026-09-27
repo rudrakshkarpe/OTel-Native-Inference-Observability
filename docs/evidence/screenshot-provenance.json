@@ -1,0 +1,18 @@
+{
+  "captured_on": "2026-09-27",
+  "source": "Authenticated Dash0 UI in Brave",
+  "replay_id": "dash0-h100-20260927",
+  "crop": "Original 3024x1752 screenshot cropped to (94,240,3024,1752), excluding browser chrome and trial banner. Values are not edited.",
+  "renderer_origin": "Adapted from rudrakshkarpe/logfire-inference-lab scripts/build_walkthrough.py, MIT, Copyright 2026 Rudraksh Karpe.",
+  "files": {
+    "dashboard-gpu.png": "80438505c8d611a86220b646f66630760d625b5d537954fb7efbe9d90c459302",
+    "dashboard-request.png": "125fe6d293e3e0da36871d908cdd23593e2bede5a9f17b4a84b8d8da0779ec5d",
+    "error-log.png": "9fcb27383143a126741c360f39e2e72f947d9f4afca4da1948d061b56ce1267f",
+    "error-trace.png": "cfb6ff36a8703511e75f84cd28a58900d7135d1bdb4cef3480b6fdf413eb56e4",
+    "log-trace-pivot.png": "764fa7011b0b84bc4eab80ec5b9586dd1b164a87768630f82f5b1dd877042d7a",
+    "prefill-attributes.png": "91390235ac33291a5a5e470d546abcbbd5ae42b9190e31f7430f68626426933b",
+    "queue-attributes.png": "144f3e0f511c767a18e220e0475819867cebe67ef2673eb364abce0c61d5a80c",
+    "services.png": "283f062191358a874f779742ecfe3602c9c0d0b5be8dbf2bece446313a1fc0bf",
+    "trace-graph.png": "3c78999e8eae0309ec15c1174a29cdd8a9d4c94f3d7dfbea87f618cf6fabbf98"
+  }
+}

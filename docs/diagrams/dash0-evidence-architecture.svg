@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="730" viewBox="0 0 1280 730" role="img" aria-labelledby="title desc">
+<title id="title">Real inference capture, portable evidence, Dash0 investigations</title>
+<desc id="desc">Historical client and vLLM H100 traces are archived with request outcomes and GPU samples. A verified replay preserves relationships and exports three OTLP signals through a local Collector to Dash0.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#55dacc"/></marker></defs>
+<rect width="1280" height="730" rx="20" fill="#0b1018"/>
+<g font-family="Arial, sans-serif">
+<text x="40" y="42" fill="#9aabc1" font-size="14" letter-spacing="2">OTEL INFERENCE LAB / VERIFIED DATA PATH</text>
+<text x="40" y="88" fill="#f2f6ff" font-size="32" font-weight="700">Capture once. Investigate the same requests in Dash0.</text>
+<text x="40" y="119" fill="#9aabc1" font-size="17">Real Gemma 4 12B execution on H100; explicit provenance through every replay transformation.</text>
+<rect x="35" y="155" width="395" height="390" rx="14" fill="#141e2b" stroke="#334559"/>
+<text x="59" y="190" fill="#ffc269" font-size="15" font-weight="700">01 / HISTORICAL GPU RUN</text>
+<rect x="59" y="214" width="346" height="85" rx="9" fill="#1a2c39"/>
+<text x="80" y="245" fill="#f2f6ff" font-size="20">Streaming workload client</text>
+<text x="80" y="274" fill="#b4c7d9" font-size="16">61 calls · full stream span · traceparent</text>
+<path d="M 230 300 L 230 335" stroke="#55dacc" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="245" y="324" fill="#9aabc1" font-size="13">HTTP over SSH</text>
+<rect x="59" y="347" width="346" height="91" rx="9" fill="#28203a"/>
+<text x="80" y="379" fill="#f2f6ff" font-size="20">vLLM 0.30.0 · H100 80GB</text>
+<text x="80" y="408" fill="#c5b8df" font-size="16">56 native request spans · engine timings</text>
+<text x="60" y="476" fill="#b4c7d9" font-size="16">nvidia-smi → utilization / memory / power</text>
+<text x="60" y="507" fill="#9aabc1" font-size="14">Pod stopped after capture and backup</text>
+<path d="M 430 350 L 467 350" stroke="#55dacc" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="477" y="155" width="355" height="390" rx="14" fill="#141e2b" stroke="#334559"/>
+<text x="501" y="190" fill="#55dacc" font-size="15" font-weight="700">02 / PRESERVE + REPLAY</text>
+<text x="501" y="236" fill="#f2f6ff" font-size="20">Immutable source archive</text>
+<text x="501" y="269" fill="#b4c7d9" font-size="16">OTLP protobuf + request JSONL</text>
+<text x="501" y="294" fill="#b4c7d9" font-size="16">GPU CSV + SHA-256 manifest</text>
+<line x1="501" y1="319" x2="808" y2="319" stroke="#334559"/>
+<text x="501" y="353" fill="#f2f6ff" font-size="20">Verified transformation</text>
+<text x="501" y="386" fill="#b4c7d9" font-size="16">One time shift · new trace IDs</text>
+<text x="501" y="413" fill="#b4c7d9" font-size="16">Keep parent IDs, durations and errors</text>
+<text x="501" y="452" fill="#b4c7d9" font-size="16">Outcome logs + measured gauges</text>
+<text x="501" y="480" fill="#b4c7d9" font-size="16">Replay ID + original source labels</text>
+<text x="501" y="513" fill="#9aabc1" font-size="14">Original files remain unchanged</text>
+<path d="M 832 350 L 867 350" stroke="#55dacc" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="877" y="155" width="368" height="390" rx="14" fill="#141e2b" stroke="#334559"/>
+<text x="901" y="190" fill="#55dacc" font-size="15" font-weight="700">03 / OTLP INTO DASH0</text>
+<rect x="901" y="214" width="320" height="75" rx="9" fill="#1a2c39"/>
+<text x="920" y="245" fill="#f2f6ff" font-size="20">OpenTelemetry Collector</text>
+<text x="920" y="272" fill="#b4c7d9" font-size="15">Loopback HTTP → authenticated TLS</text>
+<path d="M 1060 291 L 1060 324" stroke="#55dacc" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="901" y="358" fill="#f2f6ff" font-size="20">Dash0 investigations</text>
+<text x="901" y="393" fill="#b4c7d9" font-size="16">Traces: parent links + native timings</text>
+<text x="901" y="421" fill="#b4c7d9" font-size="16">Logs: outcomes → request trace</text>
+<text x="901" y="449" fill="#b4c7d9" font-size="16">Metrics: eight-panel Perses dashboard</text>
+<text x="901" y="491" fill="#55dacc" font-size="16">Public API read-back verification</text>
+<text x="901" y="518" fill="#9aabc1" font-size="14">123 span IDs / parents / durations checked</text>
+<rect x="35" y="575" width="1210" height="111" rx="12" fill="#152321" stroke="#29584e"/>
+<text x="60" y="609" fill="#55dacc" font-size="19" font-weight="700">Evidence boundaries</text>
+<text x="60" y="639" fill="#d2e2e0" font-size="17">Recorded real inference, time-shifted for replay. Request outcome logs and timing gauges are derived.</text>
+<text x="60" y="665" fill="#9aabc1" font-size="15">No new GPU execution, invented stage spans, DCGM measurements or continuous Prometheus scrape history.</text>
+</g></svg>

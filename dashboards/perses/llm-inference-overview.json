@@ -7,7 +7,7 @@
   "spec": {
     "display": {
       "name": "LLM Inference Overview",
-      "description": "vLLM serving latency, token throughput, KV-cache pressure and GPU fleet health. Works unchanged against the simulator (demo mode) or real vLLM + DCGM (GPU mode)."
+      "description": "vLLM serving latency, token throughput, KV-cache pressure and GPU fleet health. Targets the simulator metric family. Validate metric names and units before using real vLLM + DCGM."
     },
     "duration": "30m",
     "refreshInterval": "30s",

@@ -1,0 +1,44 @@
+{
+  "replay_id": "dash0-h100-20260927",
+  "source_capture": "h100-gemma4-20260927",
+  "original_window": [
+    "2026-09-27T08:20:59.518553+00:00",
+    "2026-09-27T08:23:17.751766+00:00"
+  ],
+  "replay_window": [
+    "2026-09-27T09:14:18.244651+00:00",
+    "2026-09-27T09:16:56.477864+00:00"
+  ],
+  "timestamp_shift_ns": 3208726097984,
+  "trace_mapping": {
+    "01a0e1f4012370b35773a66bcce756ec": "43320f1de1734217babaa98d2ab637ab",
+    "01a0e1f55f1795bdb5cb28cbaed5430a": "e47ebff152364dd4b9d9b8bc379dbf28",
+    "01a0e1f468fe686d02b7bc38d293ffa7": "b5ee46d8c24c48319220cd36a4aef590",
+    "01a0e1f6150b6316a7bc2065527b0e8d": "b00a313669474ed89a53ed51970ca3e8",
+    "01a0e1f5aa157606b562bb024dc4a621": "b29358d4beaf4be8b679d1c39106215a",
+    "01a0e1f617e0a0cdd2800670b2084b30": "15a79337036b4c48af21d2ef42f05ade"
+  },
+  "spans": 123,
+  "requests": 61,
+  "outcomes": {
+    "ok": 56,
+    "error": 1,
+    "intentional_early_close": 4
+  },
+  "engine_parent_links": 56,
+  "logs": 61,
+  "gpu_samples": 158,
+  "metric_points": 1079,
+  "sha256": {
+    "traces": "2bc52e74a25413b6f5b72e882c9399ee3cf7f7977a3bf199ea092a03dd130600",
+    "logs": "791238207e5d2f8f68f9e54876cf3463af328b08aa58e92803eaed388f956d41",
+    "metrics": "22436773856f16adb6c08df5d30aa2ce84d2c0be204dc04325df2017e48c748e"
+  },
+  "notes": [
+    "Only the six main-workload traces are replayed; startup attempts and smoke are excluded.",
+    "Request outcome logs are derived from archived client records, not original vLLM console logs.",
+    "GPU metrics come from recorded nvidia-smi CSV, not DCGM.",
+    "Engine timing gauges are derived from native span attributes; no stage spans were fabricated.",
+    "Original Prometheus snapshots remain in the archive; no continuous scrape history is invented."
+  ]
+}

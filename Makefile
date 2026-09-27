@@ -68,7 +68,14 @@ demo-script: ## Print the TTFT investigation narrative for live demos
 		'Import dashboards/perses/*.json into your OTLP backend (e.g. Dash0).'
 
 test: ## Run simulator unit tests
-	pytest -q
+	pytest -q tests/test_workload.py
 
 loadgen: ## Drive traffic at a real vLLM endpoint (GPU mode)
 	python3 scripts/loadgen.py --base-url $${VLLM_BASE_URL:-http://localhost:8000} --rps $${LOADGEN_RPS:-0.5} --duration $${LOADGEN_DURATION:-120}
+
+.PHONY: replay-test replay-gifs
+replay-test: ## Test the archive replay tools without a GPU or backend
+	.venv/bin/pytest -q tests/test_replay.py
+
+replay-gifs: ## Rebuild the Dash0 GIFs from committed screenshots
+	.venv/bin/python scripts/replay/build_walkthroughs.py

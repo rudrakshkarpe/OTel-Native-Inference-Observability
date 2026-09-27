@@ -1,6 +1,6 @@
-# OpenTelemetry Collector pipeline: identical in demo mode and GPU mode.
-# Only the scrape targets change (VLLM_METRICS_TARGET / DCGM_METRICS_TARGET),
-# so dashboards and alert rules built on this data model work in both.
+# Optional simulator / live scrape pipeline. Validate metric names and units
+# against the engine and DCGM versions before reusing dashboards or rules.
+# The verified H100 evidence replay uses replay.yaml instead.
 #
 # Processor order matters: memory_limiter first (protect the host), resource
 # enrichment next (stamp every signal), batch last (efficient export).

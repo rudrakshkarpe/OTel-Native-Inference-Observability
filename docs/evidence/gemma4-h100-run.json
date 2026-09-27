@@ -1,0 +1,213 @@
+{
+  "requests": 61,
+  "unique_final_spans": 178,
+  "services": {
+    "vllm-h100-serving": 108,
+    "inference-h100-client": 70
+  },
+  "forward_statuses": {
+    "200": 91
+  },
+  "scenarios": {
+    "baseline": {
+      "requests": 8,
+      "statuses": {
+        "ok": 8
+      },
+      "p95_first_content_s": 0.28220162499928847,
+      "p95_duration_s": 3.5472862080059713,
+      "requests_with_usage": 8,
+      "requests_without_usage": 0,
+      "input_tokens": 368,
+      "output_tokens": 1024,
+      "engine_request_spans": 8,
+      "p95_engine_time_in_queue_s": 5.316734313964844e-05,
+      "p95_engine_time_in_model_prefill_s": 0.057482972741127014,
+      "p95_engine_time_in_model_decode_s": 3.2617964781820774
+    },
+    "queue-pressure": {
+      "requests": 32,
+      "statuses": {
+        "ok": 32
+      },
+      "p95_first_content_s": 25.681393457998638,
+      "p95_duration_s": 33.23828558300738,
+      "requests_with_usage": 32,
+      "requests_without_usage": 0,
+      "input_tokens": 1558,
+      "output_tokens": 8192,
+      "engine_request_spans": 32,
+      "p95_engine_time_in_queue_s": 25.378792993724346,
+      "p95_engine_time_in_model_prefill_s": 0.07648282870650291,
+      "p95_engine_time_in_model_decode_s": 10.605189193040133
+    },
+    "long-context": {
+      "requests": 8,
+      "statuses": {
+        "ok": 8
+      },
+      "p95_first_content_s": 3.97724454200943,
+      "p95_duration_s": 7.106560416999855,
+      "requests_with_usage": 8,
+      "requests_without_usage": 0,
+      "input_tokens": 51448,
+      "output_tokens": 1024,
+      "engine_request_spans": 8,
+      "p95_engine_time_in_queue_s": 5.5942684412002563e-05,
+      "p95_engine_time_in_model_prefill_s": 3.4443813897669315,
+      "p95_engine_time_in_model_decode_s": 3.486912317574024
+    },
+    "recovery": {
+      "requests": 8,
+      "statuses": {
+        "ok": 8
+      },
+      "p95_first_content_s": 0.2543916670110775,
+      "p95_duration_s": 3.465167582995491,
+      "requests_with_usage": 8,
+      "requests_without_usage": 0,
+      "input_tokens": 368,
+      "output_tokens": 1024,
+      "engine_request_spans": 8,
+      "p95_engine_time_in_queue_s": 5.809590220451355e-05,
+      "p95_engine_time_in_model_prefill_s": 0.05271534249186516,
+      "p95_engine_time_in_model_decode_s": 3.1907378137111664
+    },
+    "invalid-request": {
+      "requests": 1,
+      "statuses": {
+        "error": 1
+      },
+      "p95_first_content_s": null,
+      "p95_duration_s": 0.11039912499836646,
+      "requests_with_usage": 0,
+      "requests_without_usage": 1,
+      "input_tokens": null,
+      "output_tokens": null,
+      "engine_request_spans": 0,
+      "p95_engine_time_in_queue_s": null,
+      "p95_engine_time_in_model_prefill_s": null,
+      "p95_engine_time_in_model_decode_s": null
+    },
+    "client-early-close": {
+      "requests": 4,
+      "statuses": {
+        "intentional_early_close": 4
+      },
+      "p95_first_content_s": 0.27813666699512396,
+      "p95_duration_s": 0.36333745799493045,
+      "requests_with_usage": 0,
+      "requests_without_usage": 4,
+      "input_tokens": null,
+      "output_tokens": null,
+      "engine_request_spans": 0,
+      "p95_engine_time_in_queue_s": null,
+      "p95_engine_time_in_model_prefill_s": null,
+      "p95_engine_time_in_model_decode_s": null
+    }
+  },
+  "capture": {
+    "capture_id": "h100-gemma4-20260927",
+    "started_at": "2026-09-27T08:20:59.518553+00:00",
+    "model": "google/gemma-4-12B-it",
+    "model_revision": "707f0a3b8a3c7ad586ed01e27eafbad8a27dd0f7",
+    "platform": "macOS-26.5.1-arm64-arm-64bit",
+    "client_versions": {
+      "logfire": "5.1.1",
+      "openai": "3.19.2",
+      "httpx": "0.28.1"
+    },
+    "plans": [
+      [
+        "baseline",
+        8,
+        1,
+        128
+      ],
+      [
+        "queue-pressure",
+        32,
+        16,
+        256
+      ],
+      [
+        "long-context",
+        8,
+        2,
+        128
+      ],
+      [
+        "recovery",
+        8,
+        1,
+        128
+      ],
+      [
+        "invalid-request",
+        1,
+        1,
+        128
+      ],
+      [
+        "client-early-close",
+        4,
+        2,
+        256
+      ]
+    ],
+    "base_url": "http://127.0.0.1:18000",
+    "notes": [
+      "Real model inference on one remote H100, reached over an SSH tunnel.",
+      "Client timings include network and SSH transport; native engine timings are separate.",
+      "ignore_eos=True deliberately fixes output length for load scenarios.",
+      "Client early close is intentional; missing final usage remains null."
+    ],
+    "ended_at": "2026-09-27T08:23:17.751766+00:00",
+    "requests": 61
+  },
+  "hosted": {
+    "requests_verified": 61,
+    "engine_parent_links_verified": 56,
+    "records": 117,
+    "trace_ids": [
+      "01a0e1f4012370b35773a66bcce756ec",
+      "01a0e1f468fe686d02b7bc38d293ffa7",
+      "01a0e1f55f1795bdb5cb28cbaed5430a",
+      "01a0e1f5aa157606b562bb024dc4a621",
+      "01a0e1f6150b6316a7bc2065527b0e8d",
+      "01a0e1f617e0a0cdd2800670b2084b30"
+    ],
+    "checked_at": "2026-09-27T08:24:59.806067+00:00"
+  },
+  "completed_usage_pairs_verified": 56,
+  "smoke_requests": 2,
+  "native_spans_for_early_close": 0,
+  "replay_qa": {
+    "roundtrip_batches": 91,
+    "roundtrip_spans": 178,
+    "traces": 11,
+    "relationships_preserved": true,
+    "durations_preserved": true,
+    "attributes_preserved": true,
+    "events_preserved": true,
+    "timestamp_shift_ns": 306770442000,
+    "destination": "local loopback receiver; no external platform"
+  },
+  "shutdown": {
+    "api_pid": 5445,
+    "signal": "SIGTERM",
+    "gpu_processes": "",
+    "gpu": "name, memory.used [MiB], utilization.gpu [%]\nNVIDIA H100 80GB HBM3, 0 MiB, 0 %\n",
+    "captured_at": "2026-09-27T08:25:33Z"
+  },
+  "gpu_samples": {
+    "samples": 584,
+    "max_utilization_percent": 100.0,
+    "max_memory_MiB": 73533.0
+  },
+  "capture_notes": [
+    "The original manifest lists a nominal invalid-request limit of 128; the saved request records and span attributes show the actual 9000-token override. Future captures now record 9000 directly in the plan.",
+    "Null scenario token totals mean no final usage was returned; partial totals include only requests_with_usage."
+  ],
+  "scope_note": "Original capture report: top-level archive/service totals include smoke and abandoned startup spans. Only scenarios contains the 61 main requests used by the Dash0 replay; see dash0-manifest.json for replay counts."
+}
