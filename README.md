@@ -46,7 +46,7 @@ Hosted verification reads the data back through Dash0's public API. It compares 
 
 The [inference metrics walkthrough](docs/inference-metrics.md) covers client first-content latency, native engine TTFT, p50/p90/p95/p99, queue/prefill/decode timings, per-request mean ITL, request rates and input/output token throughput. It includes the exact source fields, formulas, Dash0 queries and setup commands, plus a separate live-vLLM histogram/scrape guide.
 
-The new **12-panel Dash0 inference scorecard** complements the original eight-panel investigation dashboard. Its [251 aggregate statistics were verified through the Dash0 API](docs/evidence/inference-scorecard-verification.json). Values describe the captured workload; no GPU is running now.
+The **12-panel Dash0 inference scorecard** compares percentiles, throughput and outcomes with gauge charts. Each panel shares a zero-based scale across its series and keeps the measured values and sample counts visible. Its [251 aggregate statistics were verified through the Dash0 API](docs/evidence/inference-scorecard-verification.json). Values describe the captured workload; no GPU is running now.
 
 | Scenario | Completed | First-content p50 | p90 | p95 | p99 | Output tokens/s |
 |---|---:|---:|---:|---:|---:|---:|
@@ -59,7 +59,11 @@ Percentiles use nearest rank over completed requests. Throughput divides final o
 
 [Open the Dash0 scorecard (organization login required)](https://app.dash0.com/dashboards?org=9554a420-a7db-45da-99a8-ca786f8fa8c0&s=eJxljjGuwjAQRO-ydfzZGBIU1_8EiIpu492AJceOYpsmyt0xDRKinTczehscwGzAlClJBgMsExWfoYEp2pKEr26WC4W7gAnF-0_-X1bKLoZvtsa5nmjUvcJB6fMVB9OeDOIfIt7qa46__GzaD080L96Fe20R05LdU2Bv4MCUHmOkldPb17tUZTeIiwQweS3SgOO66bRo5pZUf-wmdaJRK7L2qMTSIL3tRrQt7Pv-Ane1S6M%3D)
 
-![Actual Dash0 scorecard showing client and engine p50, p90, p95 and p99](docs/assets/dash0/inference-scorecard.png)
+![Actual Dash0 gauge charts comparing client and engine p50, p90, p95 and p99 on shared scales](docs/assets/dash0/inference-scorecard.png)
+
+![Actual Dash0 charts comparing request throughput, token throughput and recorded outcomes](docs/assets/dash0/inference-throughput.png)
+
+Filled arcs compare values within each panel. Scale bounds are shown in panel descriptions and vary by measurement; colors identify series, not SLO thresholds. The [original investigation dashboard](docs/assets/dash0/dashboard-request.png) shows how captured observations changed over time.
 
 Dash0’s [documented sharing controls](https://www.dash0.com/docs/dash0/dashboards/control-sharing-and-access) grant access to users, roles and teams. The account’s access panel shows Admin/Edit and Member/Read; no anonymous public-sharing option was found. The screenshot, results and dashboard JSON below are public and require no Dash0 account. Hosted data remains subject to account retention.
 

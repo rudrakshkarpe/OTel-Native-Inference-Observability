@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import math
 import re
 from pathlib import Path
 from urllib.parse import quote
@@ -9,11 +10,20 @@ from urllib.parse import quote
 from dash0_api import Dash0
 from inference_metrics import DEFINITIONS
 
+DEFAULT_REPORT = (
+    Path(__file__).resolve().parents[2] / "docs/evidence/inference-scorecard.json"
+)
 
-def build(replay_id, scenario="queue-pressure"):
+
+def build(replay_id, scenario="queue-pressure", *, report=None):
     for value in (replay_id, scenario):
         if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,79}", value):
             raise ValueError("Invalid replay ID or scenario")
+    if report is None:
+        report = json.loads(DEFAULT_REPORT.read_text())
+    if report["replay_id"] != replay_id:
+        raise ValueError("Report replay ID must match dashboard replay ID")
+    summary = report["scenarios"][scenario]
     base = f'inference_replay_id="{replay_id}",inference_summary_id="inference-scorecard-v1",inference_scenario="{scenario}"'
     panels = {}
     definitions = [
@@ -63,19 +73,43 @@ def build(replay_id, scenario="queue-pressure"):
         ]
     )
     for key, title, unit, queries in definitions:
+        if key in DEFINITIONS:
+            values = [summary["distributions"][key][f"p{p}"] for p in (50, 90, 95, 99)]
+        elif key in ("request-rate", "token-rate"):
+            values = [summary["rates"][name] for name, _ in queries]
+        elif key == "outcomes":
+            values = [*summary["outcomes"].values(), summary["missing_usage"]]
+        else:
+            values = list(summary["completed_tokens"].values())
+        largest = max((value for value in values if value is not None), default=0)
+        # One common zero-based scale per panel, rounded up with visible headroom.
+        step = 10 ** math.floor(math.log10(largest)) if largest > 0 else 1
+        maximum = math.ceil(largest * 1.1 / step) * step if largest > 0 else 1
+        scale_unit = "s" if unit == "seconds" else ""
+        description = (
+            f"Completed requests: nearest-rank percentiles for {scenario}."
+            if key in DEFINITIONS
+            else f"Whole-scenario totals and wall-time rates for {scenario}."
+        ) + f" Scale: 0 to {maximum:g}{scale_unit}."
         panels[key] = {
             "kind": "Panel",
             "spec": {
                 "display": {
                     "name": title,
-                    "description": f"Fixed whole-scenario statistic for {scenario}. Percentiles: nearest-rank over completed requests, with n shown. Rates: counts divided by earliest start to latest end. Missing usage is excluded from token totals. Values are recorded at capture end; not rolling live estimates.",
+                    "description": description,
                 },
                 "plugin": {
-                    "kind": "StatChart",
+                    "kind": "GaugeChart",
                     "spec": {
                         "calculation": "last-number",
                         "format": {"unit": unit},
-                        "dash0Extensions": {"maxTimeSeries": 4},
+                        "max": maximum,
+                        "visual": {"palette": {"mode": "categorical"}},
+                        "dash0Extensions": {
+                            "maxTimeSeries": 4,
+                            "displayMode": "normal",
+                            "hideSeriesName": False,
+                        },
                     },
                 },
                 "queries": [
@@ -117,9 +151,9 @@ def build(replay_id, scenario="queue-pressure"):
                         "items": [
                             {
                                 "x": i % 2 * 12,
-                                "y": i // 2 * 4,
+                                "y": i // 2 * 7,
                                 "width": 12,
-                                "height": 4,
+                                "height": 7,
                                 "content": {"$ref": "#/spec/panels/" + key},
                             }
                             for i, key in enumerate(keys)
@@ -127,7 +161,7 @@ def build(replay_id, scenario="queue-pressure"):
                     },
                 }
                 for title, keys in [
-                    ("Completed-request distributions", list(panels)[:8]),
+                    ("Completed-request percentile comparisons", list(panels)[:8]),
                     ("Whole-scenario throughput and outcomes", list(panels)[8:]),
                 ]
             ],
@@ -140,8 +174,9 @@ if __name__ == "__main__":
     p.add_argument("--replay-id", required=True)
     p.add_argument("--scenario", default="queue-pressure")
     p.add_argument("--apply", action="store_true")
+    p.add_argument("--report", type=Path, default=DEFAULT_REPORT)
     a = p.parse_args()
-    body = build(a.replay_id, a.scenario)
+    body = build(a.replay_id, a.scenario, report=json.loads(a.report.read_text()))
     dest = Path("dashboards/perses/inference-scorecard-" + a.scenario + ".json")
     dest.write_text(json.dumps(body, indent=2) + "\n")
     if a.apply:

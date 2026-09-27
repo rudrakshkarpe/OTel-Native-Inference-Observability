@@ -14,7 +14,22 @@
     "queue-attributes.png": "144f3e0f511c767a18e220e0475819867cebe67ef2673eb364abce0c61d5a80c",
     "services.png": "283f062191358a874f779742ecfe3602c9c0d0b5be8dbf2bece446313a1fc0bf",
     "trace-graph.png": "3c78999e8eae0309ec15c1174a29cdd8a9d4c94f3d7dfbea87f618cf6fabbf98",
-    "inference-scorecard.png": "0cb28d346ad6ed82eba0035769c526239d903d97fe3c7c096469e418ab72bc3e"
+    "inference-scorecard.png": "1a83dec831a20326f04db8c501ce80cc5fbf7177f0901cfe26987897d9ca5e44",
+    "inference-throughput.png": "e34ec78be347d15197dcd9ba991eaf9c82a77b9736fdb17b30ecf6d63b669c87"
   },
-  "scorecard_note": "inference-scorecard.png captures the first published scorecard layout, with 251 API-verified aggregate statistics. Later dashboard layout compaction changes spacing only."
+  "scorecard_note": "inference-scorecard.png and inference-throughput.png capture hosted dashboard version 10 with scaled GaugeChart panels. The 251 API-verified aggregate statistics are unchanged. Only browser chrome, unrelated page areas and the trial banner are cropped; chart values are not edited.",
+  "crop_overrides": {
+    "inference-scorecard.png": [
+      72,
+      222,
+      3024,
+      1704
+    ],
+    "inference-throughput.png": [
+      682,
+      740,
+      3024,
+      1660
+    ]
+  }
 }

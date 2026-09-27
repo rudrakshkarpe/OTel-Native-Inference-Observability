@@ -31,7 +31,8 @@ python scripts/replay/collector.py up
 python scripts/replay/inference_metrics.py send --output artifacts/my-scorecard
 python scripts/replay/inference_metrics.py verify --output artifacts/my-scorecard
 python scripts/replay/scorecard_dashboard.py \
-  --replay-id my-replay --scenario queue-pressure --apply
+  --replay-id my-replay --scenario queue-pressure \
+  --report artifacts/my-scorecard/report.json --apply
 python scripts/replay/collector.py down
 ```
 
@@ -39,9 +40,11 @@ python scripts/replay/collector.py down
 
 `send` exports only metrics and writes a journal before transmission. A timeout or partial failure must be investigated before any retry. To check eventual ingestion, rerun the read-only `verify` command; do not resend the payload. `verify` compares every expected metric name, scenario, percentile, sample count and value with Dash0's Prometheus API. The published run verified [251 statistics](evidence/inference-scorecard-verification.json).
 
-The dashboard generator supports `baseline`, `queue-pressure`, `long-context`, `recovery`, `invalid-request`, `client-early-close` or `all` from this capture. Run it again with a different `--scenario` to create that scenario's dashboard. Without `--apply`, it only writes importable Perses JSON.
+The dashboard generator supports `baseline`, `queue-pressure`, `long-context`, `recovery`, `invalid-request`, `client-early-close` or `all` from this capture. Run it again with a different `--scenario` to create that scenario's dashboard. Without `--apply`, it only writes importable Perses JSON. Pass the matching report for your replay; the default is the committed evidence report. A mismatched replay ID is rejected so chart bounds cannot accidentally come from another run.
 
-Open **Dash0 inference scorecard: queue-pressure** and set the fixed range to **2026-09-27 09:14:00–09:17:10 UTC** for the committed example. All summary points are stamped at the capture's shifted end, **09:16:46.477864 UTC**. Stat panels show the last non-missing value inside the selected window. These are fixed scenario scorecards, not a new time series of live p95 estimates. The 15-second selector limits stale sample lookback; keep the time-picker resolution fine enough to include that interval.
+Open **Dash0 inference scorecard: queue-pressure** and set the fixed range to **2026-09-27 09:14:00–09:17:10 UTC** for the committed example. All summary points are stamped at the capture's shifted end, **09:16:46.477864 UTC**. Gauge charts show the last non-missing value inside the selected window. These are fixed scenario scorecards, not a new time series of live p95 estimates. The 15-second selector limits stale sample lookback; keep the time-picker resolution fine enough to include that interval.
+
+Each panel uses one common zero-based scale across its series. The generator rounds the largest reported value upward with at least 10% headroom and states the bound in the panel description. Compare the filled arcs within a panel; bounds differ between measurements and scenarios. Colors identify series, not health thresholds or SLO compliance. Percentile labels retain the sample count. Request/token throughput and outcome counts use the same chart type. The [Dash0 GaugeChart configuration](https://www.dash0.com/docs/dash0/dashboards/types/GaugeChart) is checked in with the queries.
 
 [Recorded results](evidence/inference-scorecard.md) · [Machine-readable report](evidence/inference-scorecard.json) · [Importable dashboard](../dashboards/perses/inference-scorecard-queue-pressure.json)
 

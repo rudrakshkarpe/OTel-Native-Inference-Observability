@@ -10,7 +10,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts" / "replay"))
 from capture import send
 from inference_metrics import distribution, summarize
-from scorecard_dashboard import build
+from scorecard_dashboard import DEFAULT_REPORT, build
 
 
 def row(request_id, start, end, status="ok", tokens=10, first=0.2):
@@ -108,16 +108,32 @@ def test_metric_only_send_is_journaled_without_traces_or_logs(tmp_path):
     network.assert_not_called()
 
 
-def test_scorecard_filters_fixed_population_and_uses_stat_values():
-    dashboard = build("test-replay", "baseline")
+def test_scorecard_filters_fixed_population_and_uses_scaled_gauges():
+    report = json.loads(DEFAULT_REPORT.read_text())
+    report["replay_id"] = "test-replay"
+    dashboard = build("test-replay", "baseline", report=report)
     assert len(dashboard["spec"]["panels"]) == 12
     for panel in dashboard["spec"]["panels"].values():
+        assert panel["spec"]["plugin"]["kind"] == "GaugeChart"
+        assert panel["spec"]["plugin"]["spec"]["dash0Extensions"] == {
+            "maxTimeSeries": 4,
+            "displayMode": "normal",
+            "hideSeriesName": False,
+        }
         assert panel["spec"]["plugin"]["spec"]["calculation"] == "last-number"
+        assert panel["spec"]["plugin"]["spec"]["max"] > 0
         for q in panel["spec"]["queries"]:
             query = q["spec"]["plugin"]["spec"]["query"]
             assert 'inference_scenario="baseline"' in query
             assert 'inference_replay_id="test-replay"' in query
             assert "histogram_quantile" not in query
+    for key, quantiles in report["scenarios"]["baseline"]["distributions"].items():
+        assert (
+            dashboard["spec"]["panels"][key]["spec"]["plugin"]["spec"]["max"]
+            > quantiles["p99"]
+        )
+    with pytest.raises(ValueError, match="Report replay ID"):
+        build("different-replay", report=report)
     with pytest.raises(ValueError):
         build("test-replay", 'bad"selector')
 
