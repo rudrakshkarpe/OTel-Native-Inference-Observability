@@ -1,4 +1,6 @@
-# Integration architecture
+# Dash0 integration architecture
+
+![Traces, logs and metrics through the OpenTelemetry Collector into Dash0](diagrams/reference-architecture.svg)
 
 ## Original real-engine capture
 

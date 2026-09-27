@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from animate import AMBER, ASSETS, CYAN, RED, Detail, Scene, build
+from animate import ASSETS, CORAL, ORANGE, RED, Detail, Scene, build
 
 FOOTER = (
     "REAL H100 CAPTURE REPLAYED INTO DASH0  /  ACTUAL UI EXCERPTS  /  SEPT 27, 2026"
@@ -14,7 +14,7 @@ latency = [
         "Spot the slow response window",
         "Queue pressure moves first-content latency.",
         "Compare the client measurement with native engine queue time.",
-        AMBER,
+        ORANGE,
         (
             Detail(
                 (630, 235, 2900, 865), (36, 217, 1244, 552), "15-SECOND ROLLING MAXIMA"
@@ -27,14 +27,14 @@ latency = [
         "Follow the request across services",
         "Client context reaches the vLLM serving layer.",
         "The replay preserves the original span IDs and parent relationships.",
-        CYAN,
+        CORAL,
         (
             Detail((510, 450, 1370, 1225), (36, 202, 471, 594), "DISTRIBUTED TRACE"),
             Detail(
                 (1940, 820, 2890, 1065),
                 (500, 262, 1244, 454),
                 "NATIVE REQUEST TIMINGS",
-                (((1940, 945, 2890, 1065), AMBER),),
+                (((1940, 945, 2890, 1065), ORANGE),),
             ),
         ),
     ),
@@ -44,13 +44,13 @@ latency = [
         "Find where this request spent its time",
         "23.05 s queue. 53 ms prefill. 6.11 s decode.",
         "Queue wait accounts for most of this 29.22-second engine request.",
-        AMBER,
+        ORANGE,
         (
             Detail(
                 (1940, 565, 2890, 1065),
                 (240, 185, 1040, 606),
                 "SECONDS, RECORDED BY VLLM",
-                (((1940, 945, 2890, 1065), AMBER), ((1940, 820, 2890, 939), CYAN)),
+                (((1940, 945, 2890, 1065), ORANGE), ((1940, 820, 2890, 939), CORAL)),
             ),
         ),
     ),
@@ -60,13 +60,13 @@ latency = [
         "Contrast with a long input prompt",
         "3.44 s prefill. Only 56 microseconds queued.",
         "The bottleneck changes; first-content latency alone cannot explain it.",
-        CYAN,
+        CORAL,
         (
             Detail(
                 (1940, 820, 2890, 1185),
                 (95, 198, 1185, 617),
                 "A DIFFERENT NATIVE REQUEST",
-                (((1940, 820, 2890, 939), CYAN), ((1940, 945, 2890, 1065), AMBER)),
+                (((1940, 820, 2890, 939), CORAL), ((1940, 945, 2890, 1065), ORANGE)),
             ),
         ),
     ),
@@ -95,13 +95,13 @@ failure = [
         "Pivot from the log into its request",
         "The error log links to the failing client span.",
         "The same trace ID and span ID connect the archived outcome to the trace.",
-        CYAN,
+        CORAL,
         (
             Detail(
                 (1940, 1085, 2890, 1450),
                 (165, 190, 1115, 555),
                 "SPAN CONTEXT IN THE LOG DETAIL",
-                (((2600, 1090, 2865, 1158), CYAN), ((1950, 1340, 2850, 1415), RED)),
+                (((2600, 1090, 2865, 1158), CORAL), ((1950, 1340, 2850, 1415), RED)),
             ),
         ),
     ),
@@ -131,7 +131,7 @@ resources = [
         "Discover the telemetry resources",
         "Two traced services and an H100 metric source.",
         "Service request totals use entry spans; the workload contains 61 calls.",
-        CYAN,
+        CORAL,
         (
             Detail(
                 (620, 290, 2900, 725),
@@ -146,7 +146,7 @@ resources = [
         "Inspect the GPU on the same time axis",
         "100% utilization appears in the preserved samples.",
         "GPU utilization and allocated memory come from recorded nvidia-smi data.",
-        AMBER,
+        ORANGE,
         (
             Detail(
                 (635, 645, 2900, 1390),

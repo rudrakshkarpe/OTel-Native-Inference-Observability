@@ -11,12 +11,12 @@ from PIL import Image, ImageDraw, ImageFont
 
 ASSETS = Path("docs/assets/dash0")
 SIZE = (1280, 800)
-BG = "#0b1018"
-TEXT = "#f2f6ff"
-MUTED = "#9aabc1"
-CYAN = "#54dfd2"
-AMBER = "#ffc269"
-RED = "#ff797c"
+BG = "#101010"
+TEXT = "#ffffff"
+MUTED = "#bdbdbd"
+CORAL = "#f8494d"
+ORANGE = "#fd8c66"
+RED = "#ff7073"
 
 
 def font(size):
@@ -75,7 +75,7 @@ def render(scene, index, progress, scenes, footer=None):
         frame.paste(excerpt, target[:2])
         if progress == 1:
             draw = ImageDraw.Draw(frame)
-            draw.rectangle(target, outline="#42526b", width=1)
+            draw.rectangle(target, outline="#424242", width=1)
             draw.text(
                 (target[0], target[1] - 26), detail.label, font=font(16), fill=MUTED
             )
@@ -85,13 +85,17 @@ def render(scene, index, progress, scenes, footer=None):
 
     draw = ImageDraw.Draw(frame)
     draw.rectangle((0, 0, 1280, 137), fill=BG)
-    draw.text((36, 18), "OTEL INFERENCE LAB  /  DASH0", font=font(16), fill=MUTED)
+    brand = Image.open(ASSETS / "logo-white.png").convert("RGBA")
+    brand.thumbnail((158, 30), Image.Resampling.LANCZOS)
+    frame.paste(brand, (36, 12), brand)
+    draw.text((222, 19), "INFERENCE OBSERVATORY", font=font(16), fill=MUTED)
+    draw.rectangle((0, 0, 1280, 3), fill=CORAL)
     draw.text((36, 51), scene.title, font=font(34), fill=TEXT)
     # A small four-step rail makes the loop's progression clear without a loading animation.
     for i, item in enumerate(scenes):
         spacing = 1220 / len(scenes)
         x = round(36 + i * spacing)
-        color = scene.color if i == index else "#253145"
+        color = scene.color if i == index else "#424242"
         draw.rounded_rectangle((x, 110, x + spacing - 17, 114), radius=2, fill=color)
         draw.text((x, 122), f"0{i + 1}  {item.step}", font=font(14), fill=MUTED)
 

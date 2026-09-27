@@ -1,4 +1,6 @@
-# Investigating the captured inference workload
+# Investigating GPU inference in Dash0
+
+![Three captured inference symptoms investigated in Dash0](diagrams/problem.svg)
 
 Use `inference.replay.id = dash0-h100-20260927` and the fixed time window in the [setup guide](dash0-replay.md). The UI walkthroughs are annotated screenshots, not fabricated dashboards. Source PNGs are committed alongside the GIFs; only browser chrome is cropped. The generator magnifies excerpts and adds captions/highlight outlines without changing values.
 
@@ -15,6 +17,8 @@ Compare with long-context request `000`: 3.444381 s prefill, 0.000055943 s queue
 The next experiment would vary one factor at a time: scheduler concurrency for queueing, or prompt size/prefix caching for prefill. That experiment has not been run here.
 
 ## 2. Explain an error and correlate its log
+
+![Dash0 log-to-trace investigation of the rejected request](diagrams/incident-correlation.svg)
 
 Open Logging and select the single `ERROR` request outcome. Read `exception.message`: `max_tokens=9000` exceeds `max_model_len=8192`. The log carries the client's original span ID and remapped trace ID. Use **Span Context → View full trace** to inspect the error span and exception event. The trace has only the scenario root and client span; there is no completed native generation span.
 

@@ -1,12 +1,29 @@
-# OTel-Native Inference Observability
+# GPU Inference Observability with Dash0
 
-**Investigate real GPU inference across application traces, native vLLM timings and GPU measurements in Dash0.**
+[![Dash0 inference observatory: real H100 workload, three OpenTelemetry signals and verified hosted telemetry](docs/diagrams/dash0-inference-hero.svg)](https://www.dash0.com/)
+
+**An end-to-end Dash0 integration for investigating GPU inference: from the serving layer to traces, correlated logs and GPU dashboards.**
+
+Built with [Dash0](https://www.dash0.com/), OpenTelemetry and vLLM. Dash0 is the investigation workspace throughout this project: discover services, follow distributed traces, pivot from logs to failing requests, and compare engine timings with GPU measurements. This is an independent community project.
 
 This lab follows a Gemma 4 12B workload served by vLLM on one H100 80GB. The GPU run is preserved as an immutable archive. We replay its traces and recorded measurements through an OpenTelemetry Collector into Dash0, then investigate why requests waited, what failed, and how the GPU behaved.
 
 ![Dash0 latency investigation: dashboard, distributed trace, queue wait and long-context prefill](docs/assets/dash0/latency-walkthrough.gif)
 
 The animation uses actual Dash0 screenshots with zoomed excerpts and highlights. These are time-shifted records of real inference, not a new GPU run. [Static screenshots](docs/assets/dash0/) remain available for closer inspection.
+
+## Dash0 integration at a glance
+
+| Dash0 capability | What you can investigate here | Implementation / evidence |
+|---|---|---|
+| OpenTelemetry ingestion | Traces, logs and metrics through authenticated OTLP | [Collector pipelines](collector/replay.yaml) |
+| Distributed tracing | Client requests linked to native vLLM spans, with queue, prefill and decode attributes | [Latency walkthrough](#why-was-inference-slow) |
+| Correlated logs | Request outcomes with a direct path to the failing client span | [Failure walkthrough](#what-failed) |
+| PromQL dashboards | Eight panels for client latency, engine timings and recorded GPU measurements | [Dashboard as code](scripts/replay/dashboard.py) |
+| Service discovery | Application and engine resources in the Services view | [Resource walkthrough](#gpu-and-service-context) |
+| Public API | Read hosted telemetry back and verify identities, relationships and durations | [Hosted verifier](scripts/replay/verify_dash0.py) |
+
+Start with the [Dash0 setup guide](docs/dash0-replay.md), then follow the [investigation guide](docs/investigations.md). For the product itself, see [Dash0 documentation](https://www.dash0.com/docs) and the [Dash0 API](https://www.dash0.com/docs/api-reference/openapi.json).
 
 ## What the integration proves
 
@@ -58,7 +75,7 @@ GPU measurements came from `nvidia-smi`, not DCGM. Allocated memory includes mod
 
 Dash0's Services view counts entry spans: **56 engine requests and six workload roots**. It is not the authoritative count of the 61 client calls. Use the correlated request logs or the workload manifest for completion/error rates.
 
-## Architecture
+## Architecture: inference serving into Dash0
 
 ![Historical H100 capture and the verified three-signal replay path into Dash0](docs/diagrams/dash0-evidence-architecture.svg)
 
@@ -123,5 +140,9 @@ This replay does not create a live inference endpoint. The repository's [optiona
 ```
 
 The existing simulator suite uses `tests/requirements.txt` in its own environment. CI runs the two dependency sets separately. No backend is contacted by unit tests.
+
+## Built with Dash0
+
+[Dash0](https://www.dash0.com/) provides the hosted observability experience shown in every walkthrough. The screenshots are actual Dash0 views of this workload; the diagrams and animation framing use a palette drawn from its official site. The Dash0 logo belongs to Dash0. [Visual sources and reproduction](docs/assets/dash0/README.md).
 
 [MIT license](LICENSE)
