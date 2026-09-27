@@ -25,4 +25,21 @@ jobs:
         run: pip install -r tests/requirements.txt
 
       - name: Run simulator unit tests
-        run: pytest -q
+        run: pytest -q tests/test_workload.py
+
+  replay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install replay test dependencies
+        run: pip install -r scripts/replay/requirements.txt
+      - name: Test archive integrity and replay transformations
+        run: pytest -q tests/test_replay.py
+      - name: Validate isolated Collector configuration
+        env:
+          DASH0_ENDPOINT: example.invalid:4317
+          DASH0_AUTH_TOKEN: validation-placeholder
+        run: docker compose -f docker-compose.replay.yml config -q

@@ -1,0 +1,404 @@
+{
+  "kind": "Dashboard",
+  "metadata": {
+    "name": "h100-real-inference",
+    "project": "default"
+  },
+  "spec": {
+    "display": {
+      "name": "H100 inference: queue, execution and GPU",
+      "description": "Real Gemma 4 12B capture, replay dash0-h100-20260927. Time-shifted evidence, not live inference. Request outcomes are in Logs; request parent links are in Tracing."
+    },
+    "duration": "1h",
+    "panels": {
+      "first-content": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Client: first content",
+            "description": "Recorded per-request client timings. Includes SSH/network transport. Chart shows a 15-second rolling maximum of recorded observations."
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "yAxis": {
+                "format": {
+                  "unit": "seconds"
+                }
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max_over_time(inference_lab_request_first_content_seconds{inference_replay_id=\"dash0-h100-20260927\"}[15s])",
+                    "seriesNameFormat": "{{inference_scenario}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "queue": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Engine: queue wait",
+            "description": "Derived from native vLLM span attributes, in seconds. Chart shows a 15-second rolling maximum of recorded observations."
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "yAxis": {
+                "format": {
+                  "unit": "seconds"
+                }
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max_over_time(inference_lab_engine_queue_seconds{inference_replay_id=\"dash0-h100-20260927\"}[15s])",
+                    "seriesNameFormat": "{{inference_scenario}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "execution": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Engine: prefill and decode",
+            "description": "Native engine request statistics. These are not GPU kernel profiles. Chart shows a 15-second rolling maximum of recorded observations."
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "yAxis": {
+                "format": {
+                  "unit": "seconds"
+                }
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max_over_time(inference_lab_engine_prefill_seconds{inference_replay_id=\"dash0-h100-20260927\"}[15s])",
+                    "seriesNameFormat": "prefill / {{inference_scenario}}"
+                  }
+                }
+              }
+            },
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max_over_time(inference_lab_engine_decode_seconds{inference_replay_id=\"dash0-h100-20260927\"}[15s])",
+                    "seriesNameFormat": "decode / {{inference_scenario}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "duration": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Client: full request duration",
+            "description": "Includes completed, rejected and intentionally closed requests; consult outcome logs. Chart shows a 15-second rolling maximum of recorded observations."
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "yAxis": {
+                "format": {
+                  "unit": "seconds"
+                }
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max_over_time(inference_lab_request_duration_seconds{inference_replay_id=\"dash0-h100-20260927\"}[15s])",
+                    "seriesNameFormat": "{{inference_scenario}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "gpu-utilization": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "H100: GPU utilization",
+            "description": "Recorded nvidia-smi samples with the same replay timestamp shift. No DCGM data is claimed. Chart shows a 15-second rolling maximum of recorded observations."
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "yAxis": {
+                "format": {
+                  "unit": "percent"
+                }
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max_over_time(inference_lab_gpu_utilization_percent{inference_replay_id=\"dash0-h100-20260927\"}[15s])",
+                    "seriesNameFormat": "H100 GPU"
+                  }
+                }
+              }
+            },
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max_over_time(inference_lab_gpu_memory_utilization_percent{inference_replay_id=\"dash0-h100-20260927\"}[15s])",
+                    "seriesNameFormat": "memory controller"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "gpu-memory": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "H100: allocated GPU memory",
+            "description": "nvidia-smi used memory, converted from MiB to bytes. Includes model and KV-cache reservation. Chart shows a 15-second rolling maximum of recorded observations."
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "yAxis": {
+                "format": {
+                  "unit": "bytes"
+                }
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max_over_time(inference_lab_gpu_memory_used_bytes{inference_replay_id=\"dash0-h100-20260927\"}[15s])",
+                    "seriesNameFormat": "GPU memory"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "gpu-power": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "H100: power draw",
+            "description": "Actual nvidia-smi power samples. Chart shows a 15-second rolling maximum of recorded observations."
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "yAxis": {
+                "format": {
+                  "unit": "watts"
+                }
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max_over_time(inference_lab_gpu_power_watts{inference_replay_id=\"dash0-h100-20260927\"}[15s])",
+                    "seriesNameFormat": "power"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "gpu-temperature": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "H100: temperature",
+            "description": "Actual nvidia-smi temperature samples. Chart shows a 15-second rolling maximum of recorded observations."
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "yAxis": {
+                "format": {
+                  "unit": "celsius"
+                }
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max_over_time(inference_lab_gpu_temperature_celsius{inference_replay_id=\"dash0-h100-20260927\"}[15s])",
+                    "seriesNameFormat": "temperature"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "layouts": [
+      {
+        "kind": "Grid",
+        "spec": {
+          "display": {
+            "title": "Request and engine timings",
+            "collapse": {
+              "open": true
+            }
+          },
+          "items": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 12,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/first-content"
+              }
+            },
+            {
+              "x": 12,
+              "y": 0,
+              "width": 12,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/queue"
+              }
+            },
+            {
+              "x": 0,
+              "y": 8,
+              "width": 12,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/execution"
+              }
+            },
+            {
+              "x": 12,
+              "y": 8,
+              "width": 12,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/duration"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "kind": "Grid",
+        "spec": {
+          "display": {
+            "title": "GPU samples: nvidia-smi",
+            "collapse": {
+              "open": true
+            }
+          },
+          "items": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 12,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/gpu-utilization"
+              }
+            },
+            {
+              "x": 12,
+              "y": 0,
+              "width": 12,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/gpu-memory"
+              }
+            },
+            {
+              "x": 0,
+              "y": 8,
+              "width": 12,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/gpu-power"
+              }
+            },
+            {
+              "x": 12,
+              "y": 8,
+              "width": 12,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/gpu-temperature"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+extensions:
+  bearertokenauth/dash0:
+    token: ${env:DASH0_AUTH_TOKEN}
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 256
+  batch:
+    timeout: 1s
+exporters:
+  otlp/dash0:
+    endpoint: ${env:DASH0_ENDPOINT}
+    auth:
+      authenticator: bearertokenauth/dash0
+    headers:
+      Dash0-Dataset: ${env:DASH0_DATASET}
+service:
+  extensions: [bearertokenauth/dash0]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlp/dash0]
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlp/dash0]
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlp/dash0]

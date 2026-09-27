@@ -1,0 +1,13 @@
+name: inference-evidence-replay
+services:
+  collector:
+    image: otel/opentelemetry-collector-contrib:0.109.0
+    command: ["--config=/etc/otelcol/replay.yaml"]
+    volumes:
+      - ./collector/replay.yaml:/etc/otelcol/replay.yaml:ro
+    environment:
+      DASH0_ENDPOINT: ${DASH0_ENDPOINT:?Set the organization OTLP gRPC endpoint}
+      DASH0_AUTH_TOKEN: ${DASH0_AUTH_TOKEN:?Set a Dash0 ingest token}
+      DASH0_DATASET: ${DASH0_DATASET:-default}
+    ports:
+      - "127.0.0.1:24318:4318"

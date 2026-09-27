@@ -4,3 +4,6 @@ __pycache__/
 .venv/
 .pytest_cache/
 .DS_Store
+.secrets/
+artifacts/
+.ruff_cache/

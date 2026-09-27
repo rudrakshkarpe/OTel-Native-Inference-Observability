@@ -1,0 +1,4 @@
+opentelemetry-proto==1.44.0
+prometheus-client==0.20.0
+Pillow==11.3.0
+pytest==8.3.5
