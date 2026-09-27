@@ -37,7 +37,7 @@ jobs:
       - name: Install replay test dependencies
         run: pip install -r scripts/replay/requirements.txt
       - name: Test archive integrity and replay transformations
-        run: pytest -q tests/test_replay.py
+        run: pytest -q tests/test_replay.py tests/test_inference_metrics.py
       - name: Validate isolated Collector configuration
         env:
           DASH0_ENDPOINT: example.invalid:4317

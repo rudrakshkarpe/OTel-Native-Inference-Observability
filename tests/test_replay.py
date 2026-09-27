@@ -27,6 +27,7 @@ def archive(tmp_path):
     client = "03" * 8
     row = {
         "request_id": "r1",
+        "started_at": "2026-09-27T08:00:00+00:00",
         "trace_id": tid,
         "span_id": client,
         "scenario": "baseline",

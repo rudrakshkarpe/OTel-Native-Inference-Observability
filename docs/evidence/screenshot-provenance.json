@@ -13,6 +13,8 @@
     "prefill-attributes.png": "91390235ac33291a5a5e470d546abcbbd5ae42b9190e31f7430f68626426933b",
     "queue-attributes.png": "144f3e0f511c767a18e220e0475819867cebe67ef2673eb364abce0c61d5a80c",
     "services.png": "283f062191358a874f779742ecfe3602c9c0d0b5be8dbf2bece446313a1fc0bf",
-    "trace-graph.png": "3c78999e8eae0309ec15c1174a29cdd8a9d4c94f3d7dfbea87f618cf6fabbf98"
-  }
+    "trace-graph.png": "3c78999e8eae0309ec15c1174a29cdd8a9d4c94f3d7dfbea87f618cf6fabbf98",
+    "inference-scorecard.png": "0cb28d346ad6ed82eba0035769c526239d903d97fe3c7c096469e418ab72bc3e"
+  },
+  "scorecard_note": "inference-scorecard.png captures the first published scorecard layout, with 251 API-verified aggregate statistics. Later dashboard layout compaction changes spacing only."
 }

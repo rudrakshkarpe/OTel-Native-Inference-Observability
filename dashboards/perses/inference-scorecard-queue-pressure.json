@@ -1,0 +1,608 @@
+{
+  "kind": "Dashboard",
+  "metadata": {
+    "name": "inference-scorecard-queue-pressure",
+    "project": "default"
+  },
+  "spec": {
+    "display": {
+      "name": "Dash0 inference scorecard: queue-pressure",
+      "description": "Exact fixed-capture statistics, replay dash0-h100-20260927. Completed-request percentiles and scenario wall-time throughput. Select the replay window; no live GPU is running."
+    },
+    "duration": "1h",
+    "panels": {
+      "client_first_content": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Client first-content latency",
+            "description": "Fixed whole-scenario statistic for queue-pressure. Percentiles: nearest-rank over completed requests, with n shown. Rates: counts divided by earliest start to latest end. Missing usage is excluded from token totals. Values are recorded at capture end; not rolling live estimates."
+          },
+          "plugin": {
+            "kind": "StatChart",
+            "spec": {
+              "calculation": "last-number",
+              "format": {
+                "unit": "seconds"
+              },
+              "dash0Extensions": {
+                "maxTimeSeries": 4
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max_over_time({otel_metric_name=\"inference_lab.summary.client_first_content\",inference_replay_id=\"dash0-h100-20260927\",inference_summary_id=\"inference-scorecard-v1\",inference_scenario=\"queue-pressure\"}[15s])",
+                    "seriesNameFormat": "p{{percentile}} / n={{sample_count}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "client_duration": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Client request duration",
+            "description": "Fixed whole-scenario statistic for queue-pressure. Percentiles: nearest-rank over completed requests, with n shown. Rates: counts divided by earliest start to latest end. Missing usage is excluded from token totals. Values are recorded at capture end; not rolling live estimates."
+          },
+          "plugin": {
+            "kind": "StatChart",
+            "spec": {
+              "calculation": "last-number",
+              "format": {
+                "unit": "seconds"
+              },
+              "dash0Extensions": {
+                "maxTimeSeries": 4
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max_over_time({otel_metric_name=\"inference_lab.summary.client_duration\",inference_replay_id=\"dash0-h100-20260927\",inference_summary_id=\"inference-scorecard-v1\",inference_scenario=\"queue-pressure\"}[15s])",
+                    "seriesNameFormat": "p{{percentile}} / n={{sample_count}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "engine_ttft": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Native engine TTFT",
+            "description": "Fixed whole-scenario statistic for queue-pressure. Percentiles: nearest-rank over completed requests, with n shown. Rates: counts divided by earliest start to latest end. Missing usage is excluded from token totals. Values are recorded at capture end; not rolling live estimates."
+          },
+          "plugin": {
+            "kind": "StatChart",
+            "spec": {
+              "calculation": "last-number",
+              "format": {
+                "unit": "seconds"
+              },
+              "dash0Extensions": {
+                "maxTimeSeries": 4
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max_over_time({otel_metric_name=\"inference_lab.summary.engine_ttft\",inference_replay_id=\"dash0-h100-20260927\",inference_summary_id=\"inference-scorecard-v1\",inference_scenario=\"queue-pressure\"}[15s])",
+                    "seriesNameFormat": "p{{percentile}} / n={{sample_count}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "queue": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Native queue wait",
+            "description": "Fixed whole-scenario statistic for queue-pressure. Percentiles: nearest-rank over completed requests, with n shown. Rates: counts divided by earliest start to latest end. Missing usage is excluded from token totals. Values are recorded at capture end; not rolling live estimates."
+          },
+          "plugin": {
+            "kind": "StatChart",
+            "spec": {
+              "calculation": "last-number",
+              "format": {
+                "unit": "seconds"
+              },
+              "dash0Extensions": {
+                "maxTimeSeries": 4
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max_over_time({otel_metric_name=\"inference_lab.summary.queue\",inference_replay_id=\"dash0-h100-20260927\",inference_summary_id=\"inference-scorecard-v1\",inference_scenario=\"queue-pressure\"}[15s])",
+                    "seriesNameFormat": "p{{percentile}} / n={{sample_count}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "prefill": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Native prefill",
+            "description": "Fixed whole-scenario statistic for queue-pressure. Percentiles: nearest-rank over completed requests, with n shown. Rates: counts divided by earliest start to latest end. Missing usage is excluded from token totals. Values are recorded at capture end; not rolling live estimates."
+          },
+          "plugin": {
+            "kind": "StatChart",
+            "spec": {
+              "calculation": "last-number",
+              "format": {
+                "unit": "seconds"
+              },
+              "dash0Extensions": {
+                "maxTimeSeries": 4
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max_over_time({otel_metric_name=\"inference_lab.summary.prefill\",inference_replay_id=\"dash0-h100-20260927\",inference_summary_id=\"inference-scorecard-v1\",inference_scenario=\"queue-pressure\"}[15s])",
+                    "seriesNameFormat": "p{{percentile}} / n={{sample_count}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "decode": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Native decode",
+            "description": "Fixed whole-scenario statistic for queue-pressure. Percentiles: nearest-rank over completed requests, with n shown. Rates: counts divided by earliest start to latest end. Missing usage is excluded from token totals. Values are recorded at capture end; not rolling live estimates."
+          },
+          "plugin": {
+            "kind": "StatChart",
+            "spec": {
+              "calculation": "last-number",
+              "format": {
+                "unit": "seconds"
+              },
+              "dash0Extensions": {
+                "maxTimeSeries": 4
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max_over_time({otel_metric_name=\"inference_lab.summary.decode\",inference_replay_id=\"dash0-h100-20260927\",inference_summary_id=\"inference-scorecard-v1\",inference_scenario=\"queue-pressure\"}[15s])",
+                    "seriesNameFormat": "p{{percentile}} / n={{sample_count}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "request_mean_itl": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Per-request mean ITL",
+            "description": "Fixed whole-scenario statistic for queue-pressure. Percentiles: nearest-rank over completed requests, with n shown. Rates: counts divided by earliest start to latest end. Missing usage is excluded from token totals. Values are recorded at capture end; not rolling live estimates."
+          },
+          "plugin": {
+            "kind": "StatChart",
+            "spec": {
+              "calculation": "last-number",
+              "format": {
+                "unit": "seconds"
+              },
+              "dash0Extensions": {
+                "maxTimeSeries": 4
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max_over_time({otel_metric_name=\"inference_lab.summary.request_mean_itl\",inference_replay_id=\"dash0-h100-20260927\",inference_summary_id=\"inference-scorecard-v1\",inference_scenario=\"queue-pressure\"}[15s])",
+                    "seriesNameFormat": "p{{percentile}} / n={{sample_count}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "request_output_tps": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Per-request engine output tokens/s",
+            "description": "Fixed whole-scenario statistic for queue-pressure. Percentiles: nearest-rank over completed requests, with n shown. Rates: counts divided by earliest start to latest end. Missing usage is excluded from token totals. Values are recorded at capture end; not rolling live estimates."
+          },
+          "plugin": {
+            "kind": "StatChart",
+            "spec": {
+              "calculation": "last-number",
+              "format": {
+                "unit": "decimal"
+              },
+              "dash0Extensions": {
+                "maxTimeSeries": 4
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max_over_time({otel_metric_name=\"inference_lab.summary.request_output_tps\",inference_replay_id=\"dash0-h100-20260927\",inference_summary_id=\"inference-scorecard-v1\",inference_scenario=\"queue-pressure\"}[15s])",
+                    "seriesNameFormat": "p{{percentile}} / n={{sample_count}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "request-rate": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Scenario throughput: requests/s",
+            "description": "Fixed whole-scenario statistic for queue-pressure. Percentiles: nearest-rank over completed requests, with n shown. Rates: counts divided by earliest start to latest end. Missing usage is excluded from token totals. Values are recorded at capture end; not rolling live estimates."
+          },
+          "plugin": {
+            "kind": "StatChart",
+            "spec": {
+              "calculation": "last-number",
+              "format": {
+                "unit": "decimal"
+              },
+              "dash0Extensions": {
+                "maxTimeSeries": 4
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max_over_time({otel_metric_name=\"inference_lab.summary.attempted_requests_per_second\",inference_replay_id=\"dash0-h100-20260927\",inference_summary_id=\"inference-scorecard-v1\",inference_scenario=\"queue-pressure\"}[15s])",
+                    "seriesNameFormat": "attempted requests/s"
+                  }
+                }
+              }
+            },
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max_over_time({otel_metric_name=\"inference_lab.summary.completed_requests_per_second\",inference_replay_id=\"dash0-h100-20260927\",inference_summary_id=\"inference-scorecard-v1\",inference_scenario=\"queue-pressure\"}[15s])",
+                    "seriesNameFormat": "completed requests/s"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "token-rate": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Scenario throughput: tokens/s",
+            "description": "Fixed whole-scenario statistic for queue-pressure. Percentiles: nearest-rank over completed requests, with n shown. Rates: counts divided by earliest start to latest end. Missing usage is excluded from token totals. Values are recorded at capture end; not rolling live estimates."
+          },
+          "plugin": {
+            "kind": "StatChart",
+            "spec": {
+              "calculation": "last-number",
+              "format": {
+                "unit": "decimal"
+              },
+              "dash0Extensions": {
+                "maxTimeSeries": 4
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max_over_time({otel_metric_name=\"inference_lab.summary.completed_input_tokens_per_second\",inference_replay_id=\"dash0-h100-20260927\",inference_summary_id=\"inference-scorecard-v1\",inference_scenario=\"queue-pressure\"}[15s])",
+                    "seriesNameFormat": "input tokens/s"
+                  }
+                }
+              }
+            },
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max_over_time({otel_metric_name=\"inference_lab.summary.completed_output_tokens_per_second\",inference_replay_id=\"dash0-h100-20260927\",inference_summary_id=\"inference-scorecard-v1\",inference_scenario=\"queue-pressure\"}[15s])",
+                    "seriesNameFormat": "output tokens/s"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "outcomes": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Request outcomes and missing usage",
+            "description": "Fixed whole-scenario statistic for queue-pressure. Percentiles: nearest-rank over completed requests, with n shown. Rates: counts divided by earliest start to latest end. Missing usage is excluded from token totals. Values are recorded at capture end; not rolling live estimates."
+          },
+          "plugin": {
+            "kind": "StatChart",
+            "spec": {
+              "calculation": "last-number",
+              "format": {
+                "unit": "decimal"
+              },
+              "dash0Extensions": {
+                "maxTimeSeries": 4
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max_over_time({otel_metric_name=\"inference_lab.summary.outcome_count\",inference_replay_id=\"dash0-h100-20260927\",inference_summary_id=\"inference-scorecard-v1\",inference_scenario=\"queue-pressure\"}[15s])",
+                    "seriesNameFormat": "{{inference_outcome}}"
+                  }
+                }
+              }
+            },
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max_over_time({otel_metric_name=\"inference_lab.summary.missing_usage\",inference_replay_id=\"dash0-h100-20260927\",inference_summary_id=\"inference-scorecard-v1\",inference_scenario=\"queue-pressure\"}[15s])",
+                    "seriesNameFormat": "missing final usage"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "token-count": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Completed-request token counts",
+            "description": "Fixed whole-scenario statistic for queue-pressure. Percentiles: nearest-rank over completed requests, with n shown. Rates: counts divided by earliest start to latest end. Missing usage is excluded from token totals. Values are recorded at capture end; not rolling live estimates."
+          },
+          "plugin": {
+            "kind": "StatChart",
+            "spec": {
+              "calculation": "last-number",
+              "format": {
+                "unit": "decimal"
+              },
+              "dash0Extensions": {
+                "maxTimeSeries": 4
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max_over_time({otel_metric_name=\"inference_lab.summary.token_count\",inference_replay_id=\"dash0-h100-20260927\",inference_summary_id=\"inference-scorecard-v1\",inference_scenario=\"queue-pressure\"}[15s])",
+                    "seriesNameFormat": "{{token_type}} tokens"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "layouts": [
+      {
+        "kind": "Grid",
+        "spec": {
+          "display": {
+            "title": "Completed-request distributions",
+            "collapse": {
+              "open": true
+            }
+          },
+          "items": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 12,
+              "height": 4,
+              "content": {
+                "$ref": "#/spec/panels/client_first_content"
+              }
+            },
+            {
+              "x": 12,
+              "y": 0,
+              "width": 12,
+              "height": 4,
+              "content": {
+                "$ref": "#/spec/panels/client_duration"
+              }
+            },
+            {
+              "x": 0,
+              "y": 4,
+              "width": 12,
+              "height": 4,
+              "content": {
+                "$ref": "#/spec/panels/engine_ttft"
+              }
+            },
+            {
+              "x": 12,
+              "y": 4,
+              "width": 12,
+              "height": 4,
+              "content": {
+                "$ref": "#/spec/panels/queue"
+              }
+            },
+            {
+              "x": 0,
+              "y": 8,
+              "width": 12,
+              "height": 4,
+              "content": {
+                "$ref": "#/spec/panels/prefill"
+              }
+            },
+            {
+              "x": 12,
+              "y": 8,
+              "width": 12,
+              "height": 4,
+              "content": {
+                "$ref": "#/spec/panels/decode"
+              }
+            },
+            {
+              "x": 0,
+              "y": 12,
+              "width": 12,
+              "height": 4,
+              "content": {
+                "$ref": "#/spec/panels/request_mean_itl"
+              }
+            },
+            {
+              "x": 12,
+              "y": 12,
+              "width": 12,
+              "height": 4,
+              "content": {
+                "$ref": "#/spec/panels/request_output_tps"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "kind": "Grid",
+        "spec": {
+          "display": {
+            "title": "Whole-scenario throughput and outcomes",
+            "collapse": {
+              "open": true
+            }
+          },
+          "items": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 12,
+              "height": 4,
+              "content": {
+                "$ref": "#/spec/panels/request-rate"
+              }
+            },
+            {
+              "x": 12,
+              "y": 0,
+              "width": 12,
+              "height": 4,
+              "content": {
+                "$ref": "#/spec/panels/token-rate"
+              }
+            },
+            {
+              "x": 0,
+              "y": 4,
+              "width": 12,
+              "height": 4,
+              "content": {
+                "$ref": "#/spec/panels/outcomes"
+              }
+            },
+            {
+              "x": 12,
+              "y": 4,
+              "width": 12,
+              "height": 4,
+              "content": {
+                "$ref": "#/spec/panels/token-count"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

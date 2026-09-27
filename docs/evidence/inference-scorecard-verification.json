@@ -1,0 +1,7 @@
+{
+  "replay_id": "dash0-h100-20260927",
+  "summary_id": "inference-scorecard-v1",
+  "statistics_verified": 251,
+  "sample_time": "2026-09-27T09:16:46.477864+00:00",
+  "method": "Compare every hosted metric name, scenario, percentile, sample count and value against the OTLP payload using the Dash0 Prometheus API."
+}

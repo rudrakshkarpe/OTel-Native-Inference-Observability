@@ -347,14 +347,14 @@ def prepare(root, output, replay_id, now_ns=None):
     return summary
 
 
-def send(output, endpoint):
+def send(output, endpoint, signals=("traces", "logs", "metrics")):
     manifest = json.loads((output / "manifest.json").read_text())
     if (output / "send-receipts.json").exists():
         raise ValueError(
             "This replay already has send receipts; inspect before repeating ingestion"
         )
     payloads = {}
-    for signal in ("traces", "logs", "metrics"):
+    for signal in signals:
         body = (output / f"{signal}.pb").read_bytes()
         if hashlib.sha256(body).hexdigest() != manifest["sha256"][signal]:
             raise ValueError("Prepared payload checksum mismatch")

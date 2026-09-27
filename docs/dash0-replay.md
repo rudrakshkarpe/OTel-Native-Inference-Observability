@@ -53,6 +53,10 @@ The screenshot replay is `dash0-h100-20260927`. Use a fixed range of **2026-09-2
 
 Use the fixed range when opening saved data later. Built-in views may reset to a relative range, and dashboard data will appear empty once the replay falls outside it or account retention expires. The committed screenshots are the durable visual evidence.
 
+## Inference percentiles and throughput
+
+For TTFT definitions, p50/p90/p95/p99, per-request mean ITL, and requests/tokens per second, follow the [inference metrics walkthrough](inference-metrics.md). The metrics-only scorecard supplement reuses this replay's identity and timestamp window, and leaves its original traces, logs and gauges unchanged.
+
 ## Metric queries
 
 ```promql
