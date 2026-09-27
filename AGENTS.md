@@ -96,4 +96,4 @@ names such as `fix/replay-validation` or `docs/metrics-guide`; never include
 Keep public documentation, issue comments and PR descriptions concise, specific
 and backed by evidence. Avoid em dashes. Post comments or contact maintainers only
 when the user authorizes it. Keep these instructions in `AGENTS.md`; `CLAUDE.md`
-imports this file and should not duplicate it.
+points to this file and should not duplicate it.
